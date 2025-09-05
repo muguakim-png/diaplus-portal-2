@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Musaned Tracker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --gray: #95a5a6;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .login-form {
+            text-align: center;
+        }
+        
+        .login-form h2 {
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .login-btn:hover {
+            background: #1a2530;
+        }
+        
+        .error-message {
+            color: var(--danger);
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        h1 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        
+        .admin-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logout-btn {
+            padding: 8px 15px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 300px;
+            position: relative;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 12px 20px;
+            padding-left: 40px;
+            border: 1px solid #ddd;
+            border-radius: 30px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 10px rgba(52, 152, 219, 0.2);
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1a2530;
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #219653;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            table-layout: fixed;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+            word-wrap: break-word;
+        }
+        
+        th {
+            background-color: var(--primary);
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        tr:hover {
+            background-color: #f1f9ff;
+        }
+        
+        .status-select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .status-issued {
+            background-color: rgba(39, 174, 96, 0.1);
+            color: var(--success);
+        }
+        
+        .status-process {
+            background-color: rgba(243, 156, 18, 0.1);
+            color: var(--warning);
+        }
+        
+        .status-rejected {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--danger);
+        }
+        
+        .action-btn {
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin: 2px;
+        }
+        
+        .print-btn {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .edit-btn {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .delete-btn {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .alert-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #fff8e1;
+            border-radius: 10px;
+            border-left: 5px solid var(--warning);
+        }
+        
+        .alert-section h2 {
+            color: var(--warning);
+            margin-bottom: 15px;
+        }
+        
+        .alert-item {
+            padding: 10px;
+            background: white;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .candidate-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .form-actions {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .external-link {
+            color: var(--secondary);
+            text-decoration: none;
+            font-size: 0.85em;
+            display: inline-block;
+            margin-top: 5px;
+            font-weight: 600;
+        }
+        
+        .external-link:hover {
+            text-decoration: underline;
+        }
+        
+        .link-badge {
+            display: inline-block;
+            background: #e8f4fd;
+            color: var(--secondary);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            margin-top: 4px;
+        }
+        
+        @media (max-width: 1200px) {
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+            
+            th, td {
+                min-width: 150px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+            }
+            
+            .search-box {
+                width: 100%;
+                min-width: auto;
+            }
+            
+            .buttons {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .candidate-form {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container" id="loginContainer">
+        <div class="login-form">
+            <h2><i class="fas fa-lock"></i> Admin Login</h2>
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" placeholder="Enter admin username">
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Enter admin password">
+            </div>
+            <button class="login-btn" id="loginBtn">Login</button>
+            <div class="error-message" id="errorMessage">Invalid username or password. Please try again.</div>
+        </div>
+    </div>
+
+    <div class="container" id="appContainer">
+        <div class="admin-header">
+            <div class="admin-info">
+                <i class="fas fa-user-shield"></i>
+                <span>Logged in as: <strong>diaplus@2025</strong></span>
+            </div>
+            <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+        
+        <header>
+            <h1><i class="fas fa-passport"></i> Musaned Tracker</h1>
+            <p>Track candidate progress and status for Musaned platform</p>
+        </header>
+        
+        <div class="controls">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search candidates by name or passport number...">
+            </div>
+            <div class="buttons">
+                <button class="btn-primary" id="addCandidateBtn"><i class="fas fa-plus"></i> Add Candidate</button>
+                <button class="btn-success" id="exportBtn"><i class="fas fa-file-export"></i> Export to CSV</button>
+                <button class="btn-danger" id="emailBtn"><i class="fas fa-envelope"></i> Send to Gmail</button>
+                <button class="btn-primary" id="saveLocalBtn"><i class="fas fa-save"></i> Save Locally</button>
+            </div>
+        </div>
+        
+        <div class="candidate-form" id="candidateForm" style="display: none;">
+            <div class="form-group">
+                <label for="candidateName">Candidate Name *</label>
+                <input type="text" id="candidateName" placeholder="Enter full name" required>
+            </div>
+            <div class="form-group">
+                <label for="phoneNumber">Phone Number *</label>
+                <input type="text" id="phoneNumber" placeholder="Enter phone number" required>
+            </div>
+            <div class="form-group">
+                <label for="passportNo">Passport Number *</label>
+                <input type="text" id="passportNo" placeholder="Enter passport number" required>
+            </div>
+            <div class="form-group">
+                <label for="idNumber">ID Number *</label>
+                <input type="text" id="idNumber" placeholder="Enter ID number" required>
+            </div>
+            <div class="form-group">
+                <label for="jobCategory">Job Category *</label>
+                <input type="text" id="jobCategory" placeholder="Enter job category" required>
+            </div>
+            <div class="form-group">
+                <label for="client">Client *</label>
+                <input type="text" id="client" placeholder="Enter client name" required>
+            </div>
+            <div class="form-group">
+                <label for="nextOfKin">Next of Kin</label>
+                <input type="text" id="nextOfKin" placeholder="Enter next of kin name">
+            </div>
+            <div class="form-group">
+                <label for="nextOfKinPhone">Next of Kin Phone</label>
+                <input type="text" id="nextOfKinPhone" placeholder="Enter next of kin phone">
+            </div>
+            <input type="hidden" id="editIndex" value="-1">
+            <div class="form-actions">
+                <button class="btn-danger" id="cancelBtn">Cancel</button>
+                <button class="btn-success" id="saveBtn">Save Candidate</button>
+            </div>
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Candidate Name</th>
+                    <th>Phone Number</th>
+                    <th>Passport No.</th>
+                    <th>ID Number</th>
+                    <th>Job Category</th>
+                    <th>Client</th>
+                    <th>Status</th>
+                    <th>Visa Status</th>
+                    <th>Medical</th>
+                    <th>Training</th>
+                    <th>Contract</th>
+                    <th>VFS</th>
+                    <th>Attestation</th>
+                    <th>Good Conduct</th>
+                    <th>Embassy</th>
+                    <th>Airport</th>
+                    <th>Flight</th>
+                    <th>Departure</th>
+                    <th>Next of Kin</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="candidateTableBody">
+                <!-- Table content will be generated dynamically -->
+            </tbody>
+        </table>
+        
+        <div class="alert-section">
+            <h2><i class="fas fa-exclamation-triangle"></i> Pending Status Alerts</h2>
+            <div id="alertsContainer">
+                <!-- Alerts will be generated dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Admin credentials
+            const ADMIN_USERNAME = "diaplus@2025";
+            const ADMIN_PASSWORD = "@login1200";
+            
+            // DOM elements
+            const loginContainer = document.getElementById('loginContainer');
+            const appContainer = document.getElementById('appContainer');
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            const loginBtn = document.getElementById('loginBtn');
+            const errorMessage = document.getElementById('errorMessage');
+            const logoutBtn = document.getElementById('logoutBtn');
+            
+            // Login functionality
+            loginBtn.addEventListener('click', function() {
+                const username = usernameInput.value;
+                const password = passwordInput.value;
+                
+                if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+                    // Successful login
+                    loginContainer.style.display = 'none';
+                    appContainer.style.display = 'block';
+                    errorMessage.style.display = 'none';
+                    
+                    // Initialize the app
+                    initApp();
+                } else {
+                    // Failed login
+                    errorMessage.style.display = 'block';
+                    usernameInput.value = '';
+                    passwordInput.value = '';
+                }
+            });
+            
+            // Logout functionality
+            logoutBtn.addEventListener('click', function() {
+                loginContainer.style.display = 'flex';
+                appContainer.style.display = 'none';
+                usernameInput.value = '';
+                passwordInput.value = '';
+            });
+            
+            // Allow login with Enter key
+            passwordInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    loginBtn.click();
+                }
+            });
+            
+            // Initialize the application
+            function initApp() {
+                // Sample data for demonstration
+                const sampleCandidates = [
+                    {
+                        name: "Ahmed Hassan",
+                        phone: "+966 12 345 6789",
+                        passport: "A12345678",
+                        idNumber: "12345678",
+                        jobCategory: "Driver",
+                        client: "Al-Nasser Co.",
+                        status: "Active",
+                        visaStatus: "✅ Issued",
+                        medical: "✅ Issued",
+                        training: "⏳ In Process",
+                        contract: "✅ Issued",
+                        vfs: "❌ Rejected",
+                        attestation: "✅ Issued",
+                        goodConduct: "⏳ In Process",
+                        embassy: "✅ Issued",
+                        airportClearance: "✅ Issued",
+                        flight: "❌ Rejected",
+                        departure: "2023-12-15",
+                        nextOfKin: "Fatima Hassan",
+                        nextOfKinPhone: "+254 712 345 678",
+                        notes: "Need to follow up on training"
+                    },
+                    {
+                        name: "Mohammed Ali",
+                        phone: "+966 98 765 4321",
+                        passport: "B87654321",
+                        idNumber: "87654321",
+                        jobCategory: "Accountant",
+                        client: "Al-Rajhi Ltd",
+                        status: "Active",
+                        visaStatus: "⏳ In Process",
+                        medical: "✅ Issued",
+                        training: "✅ Issued",
+                        contract: "✅ Issued",
+                        vfs: "⏳ In Process",
+                        attestation: "❌ Rejected",
+                        goodConduct: "✅ Issued",
+                        embassy: "⏳ In Process",
+                        airportClearance: "⏳ In Process",
+                        flight: "⏳ In Process",
+                        departure: "2023-11-30",
+                        nextOfKin: "Aisha Ali",
+                        nextOfKinPhone: "+254 723 456 789",
+                        notes: "Attestation needs resubmission"
+                    }
+                ];
+                
+                let candidates = JSON.parse(localStorage.getItem('candidates')) || sampleCandidates;
+                
+                // Initialize the table
+                renderCandidatesTable();
+                updateAlerts();
+                
+                // Toggle candidate form
+                document.getElementById('addCandidateBtn').addEventListener('click', function() {
+                    const form = document.getElementById('candidateForm');
+                    form.style.display = form.style.display === 'none' ? 'grid' : 'none';
+                    document.getElementById('editIndex').value = "-1";
+                    document.getElementById('candidateForm').reset();
+                });
+                
+                document.getElementById('cancelBtn').addEventListener('click', function() {
+                    document.getElementById('candidateForm').style.display = 'none';
+                });
+                
+                // Save new candidate
+                document.getElementById('saveBtn').addEventListener('click', function() {
+                    const editIndex = parseInt(document.getElementById('editIndex').value);
+                    const newCandidate = {
+                        name: document.getElementById('candidateName').value,
+                        phone: document.getElementById('phoneNumber').value,
+                        passport: document.getElementById('passportNo').value,
+                        idNumber: document.getElementById('idNumber').value,
+                        jobCategory: document.getElementById('jobCategory').value,
+                        client: document.getElementById('client').value,
+                        status: "Active",
+                        visaStatus: "⏳ In Process",
+                        medical: "⏳ In Process",
+                        training: "⏳ In Process",
+                        contract: "⏳ In Process",
+                        vfs: "⏳ In Process",
+                        attestation: "⏳ In Process",
+                        goodConduct: "⏳ In Process",
+                        embassy: "⏳ In Process",
+                        airportClearance: "⏳ In Process",
+                        flight: "⏳ In Process",
+                        departure: "",
+                        nextOfKin: document.getElementById('nextOfKin').value,
+                        nextOfKinPhone: document.getElementById('nextOfKinPhone').value,
+                        notes: ""
+                    };
+                    
+                    if (editIndex >= 0) {
+                        // Update existing candidate
+                        candidates[editIndex] = newCandidate;
+                    } else {
+                        // Add new candidate
+                        candidates.push(newCandidate);
+                    }
+                    
+                    saveToLocalStorage();
+                    renderCandidatesTable();
+                    updateAlerts();
+                    
+                    // Reset form
+                    document.getElementById('candidateForm').reset();
+                    document.getElementById('candidateForm').style.display = 'none';
+                });
+                
+                // Search functionality
+                document.getElementById('searchInput').addEventListener('input', function(e) {
+                    const searchTerm = e.target.value.toLowerCase();
+                    const filteredCandidates = candidates.filter(candidate => 
+                        candidate.name.toLowerCase().includes(searchTerm) || 
+                        candidate.passport.toLowerCase().includes(searchTerm) ||
+                        candidate.idNumber.toLowerCase().includes(searchTerm)
+                    );
+                    renderCandidatesTable(filteredCandidates);
+                });
+                
+                // Export to CSV
+                document.getElementById('exportBtn').addEventListener('click', function() {
+                    exportToCSV();
+                });
+                
+                // Send to Gmail
+                document.getElementById('emailBtn').addEventListener('click', function() {
+                    sendToGmail();
+                });
+                
+                // Save locally
+                document.getElementById('saveLocalBtn').addEventListener('click', function() {
+                    saveToLocalStorage();
+                    alert('Data saved to local storage successfully!');
+                });
+                
+                // Render candidates table
+                function renderCandidatesTable(candidatesToRender = candidates) {
+                    const tableBody = document.getElementById('candidateTableBody');
+                    tableBody.innerHTML = '';
+                    
+                    candidatesToRender.forEach((candidate, index) => {
+                        const row = document.createElement('tr');
+                        
+                        row.innerHTML = `
+                            <td>${candidate.name}</td>
+                            <td>${candidate.phone}</td>
+                            <td>${candidate.passport}</td>
+                            <td>${candidate.idNumber}</td>
+                            <td>${candidate.jobCategory}</td>
+                            <td>${candidate.client}</td>
+                            <td>${candidate.status}</td>
+                            <td>
+                                <select class="status-select" onchange="updateStatus(${index}, 'visaStatus', this.value)">
+                                    <option value="⏳ In Process" ${candidate.visaStatus === '⏳ In Process' ? 'selected' : ''}>⏳ In Process</option>
+                                    <option value="✅ Issued" ${candidate.visaStatus === '✅ Issued' ? 'selected' : ''}>✅ Issued</option>
+                                    <option value="❌ Rejected" ${candidate.visaStatus === '❌ Rejected' ? 'selected' : ''}>❌ Rejected</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select class="status-select" onchange="updateStatus(${index}, 'medical', this.value)">
+                                    <option value="⏳ In Process" ${candidate.medical === '⏳ In Process' ? 'selected' : ''}>⏳ In Process</option>
+                                    <option value="✅ Issued" ${candidate.medical === '✅ Issued' ? 'selected' : ''}>✅ Issued</option>
+                                    <option value="❌ Rejected" ${candidate.medical === '❌ Rejected' ? 'selected' : ''}>❌ Rejected</option>
+                                </select>
+                                <div class="link-badge"><a href="https://wafid.com" class="external-link" target="_blank">WAFID</a></div>
+                            </td>
+                            <td>
+                                <select class="status-select" onchange="updateStatus(${index}, 'training', this.value)">
+                                    <option value="⏳ In Process" ${candidate.training === '⏳ In Process' ? 'selected' : ''}>⏳ In Process</option>
+                                    <option value="✅ Issued" ${candidate.training === '✅ Issued' ? 'selected' : ''}>✅ Issued</option>
+                                    <option value="❌ Rejected" ${candidate.training === '❌ Rejected' ? 'selected' : ''}>❌ Rejected</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select class="status-select" onchange="updateStatus(${index}, 'contract', this.value)">
+                                    <option value="⏳ In Process" ${candidate.contract === '⏳ In Process' ? 'selected' : ''}>⏳ In Process</option>
+                                    <option value="✅ Issued" ${candidate.contract === '✅ Issued' ? 'selected' : ''}>✅ Issued</option>
+                                    <option value="❌ Rejected" ${candidate.contract === '❌ Rejected' ? 'selected' : ''}>❌ Rejected</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select class="status-select" onchange="updateStatus(${index}, 'vfs', this.value)">
+                                    <option value="⏳ In Process" ${candidate.vfs === '⏳ In Process' ? 'selected' : ''}>⏳ In Process</option>
+                                    <option value="✅ Issued" ${candidate.vfs === '✅ Issued' ? 'selected' : ''}>✅ Issued</option>
+                                    <option value="❌ Rejected" ${candidate.vfs === '❌ Rejected' ? 'selected' : ''}>❌ Rejected</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select class="status-select" onchange="updateStatus(${index}, 'attestation', this.value)">
+                                    <option value="⏳ In Process" ${candidate.attestation === '⏳ In Process' ? 'selected' : ''}>⏳ In Process</option>
+                                    <option value="✅ Issued" ${candidate.attestation === '✅ Issued' ? 'selected' : ''}>✅ Issued</option>
+                                    <option value="❌ Rejected" ${candidate.attestation === '❌ Rejected' ? 'selected' : ''}>❌ Rejected</option>
+                                </select>
+                                <div class="link-badge"><a href="https://mfa.ecitizen.go.ke" class="external-link" target="_blank">MFA</a></div>
+                            </td>
+                            <td>
+                                <select class="status-select" onchange="updateStatus(${index}, 'goodConduct', this.value)">
+                                    <option value="⏳ In Process" ${candidate.goodConduct === '⏳ In Process' ? 'selected' : ''}>⏳ In Process</option>
+                                    <option value="✅ Issued" ${candidate.goodConduct === '✅ Issued' ? 'selected' : ''}>✅ Issued</option>
+                                    <option value="❌ Rejected" ${candidate.goodConduct === '❌ Rejected' ? 'selected' : ''}>❌ Rejected</option>
+                                </select>
+                                <div class="link-badge"><a href="https://dci.ecitizen.go.ke" class="external-link" target="_blank">DCI</a></div>
+                            </td>
+                            <td>
+                                <select class="status-select" onchange="updateStatus(${index}, 'embassy', this.value)">
+                                    <option value="⏳ In Process" ${candidate.embassy === '⏳ In Process' ? 'selected' : ''}>⏳ In Process</option>
+                                    <option value="✅ Issued" ${candidate.embassy === '✅ Issued' ? 'selected' : ''}>✅ Issued</option>
+                                    <option value="❌ Rejected" ${candidate.embassy === '❌ Rejected' ? 'selected' : ''}>❌ Rejected</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select class="status-select" onchange="updateStatus(${index}, 'airportClearance', this.value)">
+                                    <option value="⏳ In Process" ${candidate.airportClearance === '⏳ In Process' ? 'selected' : ''}>⏳ In Process</option>
+                                    <option value="✅ Issued" ${candidate.airportClearance === '✅ Issued' ? 'selected' : ''}>✅ Issued</option>
+                                    <option value="❌ Rejected" ${candidate.airportClearance === '❌ Rejected' ? 'selected' : ''}>❌ Rejected</option>
+                                </select>
+                                <div class="link-badge"><a href="https://neaims.go.ke" class="external-link" target="_blank">NEA</a></div>
+                            </td>
+                            <td>
+                                <select class="status-select" onchange="updateStatus(${index}, 'flight', this.value)">
+                                    <option value="⏳ In Process" ${candidate.flight === '⏳ In Process' ? 'selected' : ''}>⏳ In Process</option>
+                                    <option value="✅ Issued" ${candidate.flight === '✅ Issued' ? 'selected' : ''}>✅ Issued</option>
+                                    <option value="❌ Rejected" ${candidate.flight === '❌ Rejected' ? 'selected' : ''}>❌ Rejected</option>
+                                </select>
+                            </td>
+                            <td><input type="date" value="${candidate.departure}" onchange="updateDepartureDate(${index}, this.value)"></td>
+                            <td>${candidate.nextOfKin}<br><small>${candidate.nextOfKinPhone}</small></td>
+                            <td>
+                                <button class="action-btn edit-btn" onclick="editCandidate(${index})"><i class="fas fa-edit"></i> Edit</button>
+                                <button class="action-btn print-btn" onclick="printCandidate(${index})"><i class="fas fa-print"></i> Print</button>
+                                <button class="action-btn delete-btn" onclick="deleteCandidate(${index})"><i class="fas fa-trash"></i> Delete</button>
+                            </td>
+                        `;
+                        
+                        tableBody.appendChild(row);
+                    });
+                }
+                
+                // Update status function
+                window.updateStatus = function(index, field, value) {
+                    candidates[index][field] = value;
+                    saveToLocalStorage();
+                    updateAlerts();
+                }
+                
+                // Update departure date
+                window.updateDepartureDate = function(index, value) {
+                    candidates[index].departure = value;
+                    saveToLocalStorage();
+                }
+                
+                // Edit candidate
+                window.editCandidate = function(index) {
+                    const candidate = candidates[index];
+                    document.getElementById('candidateName').value = candidate.name;
+                    document.getElementById('phoneNumber').value = candidate.phone;
+                    document.getElementById('passportNo').value = candidate.passport;
+                    document.getElementById('idNumber').value = candidate.idNumber;
+                    document.getElementById('jobCategory').value = candidate.jobCategory;
+                    document.getElementById('client').value = candidate.client;
+                    document.getElementById('nextOfKin').value = candidate.nextOfKin;
+                    document.getElementById('nextOfKinPhone').value = candidate.nextOfKinPhone;
+                    document.getElementById('editIndex').value = index;
+                    
+                    document.getElementById('candidateForm').style.display = 'grid';
+                }
+                
+                // Delete candidate
+                window.deleteCandidate = function(index) {
+                    if (confirm('Are you sure you want to delete this candidate?')) {
+                        candidates.splice(index, 1);
+                        saveToLocalStorage();
+                        renderCandidatesTable();
+                        updateAlerts();
+                    }
+                }
+                
+                // Print candidate
+                window.printCandidate = function(index) {
+                    const candidate = candidates[index];
+                    const printWindow = window.open('', '_blank');
+                    printWindow.document.write(`
+                        <html>
+                        <head>
+                            <title>Candidate Details: ${candidate.name}</title>
+                            <style>
+                                body { font-family: Arial, sans-serif; padding: 20px; }
+                                h1 { color: #2c3e50; }
+                                .detail { margin-bottom: 10px; }
+                                .label { font-weight: bold; }
+                                .section { margin-top: 20px; padding-top: 10px; border-top: 1px solid #ddd; }
+                            </style>
+                        </head>
+                        <body>
+                            <h1>Candidate Details</h1>
+                            <div class="detail"><span class="label">Name:</span> ${candidate.name}</div>
+                            <div class="detail"><span class="label">Phone:</span> ${candidate.phone}</div>
+                            <div class="detail"><span class="label">Passport:</span> ${candidate.passport}</div>
+                            <div class="detail"><span class="label">ID Number:</span> ${candidate.idNumber}</div>
+                            <div class="detail"><span class="label">Job Category:</span> ${candidate.jobCategory}</div>
+                            <div class="detail"><span class="label">Client:</span> ${candidate.client}</div>
+                            
+                            <div class="section">
+                                <h2>Next of Kin Details</h2>
+                                <div class="detail"><span class="label">Name:</span> ${candidate.nextOfKin}</div>
+                                <div class="detail"><span class="label">Phone:</span> ${candidate.nextOfKinPhone}</div>
+                            </div>
+                            
+                            <div class="section">
+                                <h2>Status Information</h2>
+                                <div class="detail"><span class="label">Visa Status:</span> ${candidate.visaStatus}</div>
+                                <div class="detail"><span class="label">Medical Clearance:</span> ${candidate.medical}</div>
+                                <div class="detail"><span class="label">Training Completed:</span> ${candidate.training}</div>
+                                <div class="detail"><span class="label">Contract Signed:</span> ${candidate.contract}</div>
+                                <div class="detail"><span class="label">VFS Appointment:</span> ${candidate.vfs}</div>
+                                <div class="detail"><span class="label">Attestation Status:</span> ${candidate.attestation}</div>
+                                <div class="detail"><span class="label">Good Conduct Status:</span> ${candidate.goodConduct}</div>
+                                <div class="detail"><span class="label">Embassy Submission:</span> ${candidate.embassy}</div>
+                                <div class="detail"><span class="label">Airport Clearance:</span> ${candidate.airportClearance}</div>
+                                <div class="detail"><span class="label">Flight Booked:</span> ${candidate.flight}</div>
+                                <div class="detail"><span class="label">Departure Date:</span> ${candidate.departure}</div>
+                            </div>
+                            
+                            <div class="section">
+                                <h2>Notes</h2>
+                                <div class="detail">${candidate.notes}</div>
+                            </div>
+                            
+                            <br>
+                            <button onclick="window.print()">Print</button>
+                        </body>
+                        </html>
+                    `);
+                    printWindow.document.close();
+                }
+                
+                // Update alerts
+                function updateAlerts() {
+                    const alertsContainer = document.getElementById('alertsContainer');
+                    alertsContainer.innerHTML = '';
+                    
+                    candidates.forEach(candidate => {
+                        const pendingItems = [];
+                        
+                        if (candidate.visaStatus === '⏳ In Process') pendingItems.push('Visa Status');
+                        if (candidate.medical === '⏳ In Process') pendingItems.push('Medical Clearance');
+                        if (candidate.training === '⏳ In Process') pendingItems.push('Training Completed');
+                        if (candidate.contract === '⏳ In Process') pendingItems.push('Contract Signed');
+                        if (candidate.vfs === '⏳ In Process') pendingItems.push('VFS Appointment');
+                        if (candidate.attestation === '⏳ In Process') pendingItems.push('Attestation Status');
+                        if (candidate.goodConduct === '⏳ In Process') pendingItems.push('Good Conduct Status');
+                        if (candidate.embassy === '⏳ In Process') pendingItems.push('Embassy Submission');
+                        if (candidate.airportClearance === '⏳ In Process') pendingItems.push('Airport Clearance');
+                        if (candidate.flight === '⏳ In Process') pendingItems.push('Flight Booked');
+                        
+                        if (pendingItems.length > 0) {
+                            const alertItem = document.createElement('div');
+                            alertItem.className = 'alert-item';
+                            alertItem.innerHTML = `
+                                <div>
+                                    <strong>${candidate.name}</strong> has pending items: 
+                                    ${pendingItems.join(', ')}
+                                </div>
+                                <div>
+                                    <button class="action-btn" onclick="focusCandidate('${candidate.name}')">
+                                        <i class="fas fa-eye"></i> View
+                                    </button>
+                                </div>
+                            `;
+                            alertsContainer.appendChild(alertItem);
+                        }
+                    });
+                    
+                    if (alertsContainer.children.length === 0) {
+                        alertsContainer.innerHTML = '<div class="alert-item">No pending status alerts. All processes are completed or issued.</div>';
+                    }
+                }
+                
+                // Focus on candidate in table
+                window.focusCandidate = function(name) {
+                    document.getElementById('searchInput').value = name;
+                    const searchTerm = name.toLowerCase();
+                    const filteredCandidates = candidates.filter(candidate => 
+                        candidate.name.toLowerCase().includes(searchTerm)
+                    );
+                    renderCandidatesTable(filteredCandidates);
+                }
+                
+                // Save to local storage
+                function saveToLocalStorage() {
+                    localStorage.setItem('candidates', JSON.stringify(candidates));
+                }
+                
+                // Export to CSV
+                function exportToCSV() {
+                    let csvContent = "data:text/csv;charset=utf-8,";
+                    
+                    // Headers
+                    const headers = ["Name", "Phone", "Passport", "ID Number", "Job Category", "Client", "Status", 
+                                    "Visa Status", "Medical Clearance", "Training Completed", "Contract Signed", 
+                                    "VFS Appointment", "Attestation Status", "Good Conduct Status", "Embassy Submission",
+                                    "Airport Clearance", "Flight Booked", "Departure Date", "Next of Kin", "Next of Kin Phone"];
+                    csvContent += headers.join(",") + "\r\n";
+                    
+                    // Data
+                    candidates.forEach(candidate => {
+                        const row = [
+                            candidate.name,
+                            candidate.phone,
+                            candidate.passport,
+                            candidate.idNumber,
+                            candidate.jobCategory,
+                            candidate.client,
+                            candidate.status,
+                            candidate.visaStatus,
+                            candidate.medical,
+                            candidate.training,
+                            candidate.contract,
+                            candidate.vfs,
+                            candidate.attestation,
+                            candidate.goodConduct,
+                            candidate.embassy,
+                            candidate.airportClearance,
+                            candidate.flight,
+                            candidate.departure,
+                            candidate.nextOfKin,
+                            candidate.nextOfKinPhone
+                        ];
+                        csvContent += row.join(",") + "\r\n";
+                    });
+                    
+                    const encodedUri = encodeURI(csvContent);
+                    const link = document.createElement("a");
+                    link.setAttribute("href", encodedUri);
+                    link.setAttribute("download", "musaned_candidates.csv");
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
+                
+                // Send to Gmail
+                function sendToGmail() {
+                    const subject = "Musaned Candidate Report";
+                    let body = "Here is the candidate report:%0D%0A%0D%0A";
+                    
+                    candidates.forEach(candidate => {
+                        body += `Name: ${candidate.name}%0D%0A`;
+                        body += `Phone: ${candidate.phone}%0D%0A`;
+                        body += `Passport: ${candidate.passport}%0D%0A`;
+                        body += `ID Number: ${candidate.idNumber}%0D%0A`;
+                        body += `Next of Kin: ${candidate.nextOfKin}%0D%0A`;
+                        body += `Next of Kin Phone: ${candidate.nextOfKinPhone}%0D%0A`;
+                        body += `Visa Status: ${candidate.visaStatus}%0D%0A`;
+                        body += `Medical: ${candidate.medical}%0D%0A`;
+                        body += `Training: ${candidate.training}%0D%0A`;
+                        body += `Contract: ${candidate.contract}%0D%0A`;
+                        body += `VFS: ${candidate.vfs}%0D%0A`;
+                        body += `Attestation: ${candidate.attestation}%0D%0A`;
+                        body += `Good Conduct: ${candidate.goodConduct}%0D%0A`;
+                        body += `Embassy: ${candidate.embassy}%0D%0A`;
+                        body += `Airport Clearance: ${candidate.airportClearance}%0D%0A`;
+                        body += `Flight: ${candidate.flight}%0D%0A`;
+                        body += `Departure: ${candidate.departure}%0D%0A`;
+                        body += "%0D%0A";
+                    });
+                    
+                    window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=&su=${subject}&body=${body}`, '_blank');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
