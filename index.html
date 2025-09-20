@@ -1,1115 +1,267 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recruitment Candidates Oversight</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
-    <style>
-        :root {
-            --primary: #2c3e50;
-            --secondary: #3498db;
-            --success: #27ae60;
-            --warning: #f39c12;
-            --danger: #e74c3c;
-            --light: #ecf0f1;
-            --dark: #2c3e50;
-            --gray: #95a5a6;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background-color: #f5f7fa;
-            color: #333;
-            line-height: 1.6;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 100%;
-            margin: 0 auto;
-            padding: 20px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-        }
-        
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #eee;
-        }
-        
-        h1 {
-            color: var(--primary);
-            margin-bottom: 10px;
-        }
-        
-        .controls {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        
-        .search-box {
-            flex: 1;
-            min-width: 300px;
-            position: relative;
-        }
-        
-        .search-box input {
-            width: 100%;
-            padding: 12px 20px;
-            padding-left: 40px;
-            border: 1px solid #ddd;
-            border-radius: 30px;
-            font-size: 16px;
-            transition: all 0.3s;
-        }
-        
-        .search-box input:focus {
-            outline: none;
-            border-color: var(--secondary);
-            box-shadow: 0 0 10px rgba(52, 152, 219, 0.2);
-        }
-        
-        .search-box i {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--gray);
-        }
-        
-        .buttons {
-            display: flex;
-            gap: 10px;
-        }
-        
-        button {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: #1a2530;
-        }
-        
-        .btn-success {
-            background: var(--success);
-            color: white;
-        }
-        
-        .btn-success:hover {
-            background: #219653;
-        }
-        
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-        }
-        
-        .btn-danger:hover {
-            background: #c0392b;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-            table-layout: fixed;
-        }
-        
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-            word-wrap: break-word;
-        }
-        
-        th {
-            background-color: var(--primary);
-            color: white;
-            position: sticky;
-            top: 0;
-        }
-        
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-        
-        tr:hover {
-            background-color: #f1f9ff;
-        }
-        
-        .status-select {
-            width: 100%;
-            padding: 8px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-            background: white;
-            cursor: pointer;
-        }
-        
-        .status-issued {
-            background-color: rgba(39, 174, 96, 0.1);
-            color: var(--success);
-        }
-        
-        .status-process {
-            background-color: rgba(243, 156, 18, 0.1);
-            color: var(--warning);
-        }
-        
-        .status-rejected {
-            background-color: rgba(231, 76, 60, 0.1);
-            color: var(--danger);
-        }
-        
-        .action-btn {
-            padding: 8px 12px;
-            border-radius: 5px;
-            border: none;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            margin: 2px;
-        }
-        
-        .print-btn {
-            background: var(--primary);
-            color: white;
-        }
-        
-        .edit-btn {
-            background: var(--secondary);
-            color: white;
-        }
-        
-        .delete-btn {
-            background: var(--danger);
-            color: white;
-        }
-        
-        .pdf-btn {
-            background: #e74c3c;
-            color: white;
-        }
-        
-        .alert-section {
-            margin-top: 30px;
-            padding: 20px;
-            background: #fff8e1;
-            border-radius: 10px;
-            border-left: 5px solid var(--warning);
-        }
-        
-        .alert-section h2 {
-            color: var(--warning);
-            margin-bottom: 15px;
-        }
-        
-        .alert-item {
-            padding: 10px;
-            background: white;
-            margin-bottom: 10px;
-            border-radius: 5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .candidate-form {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-            padding: 20px;
-            background: #f9f9f9;
-            border-radius: 10px;
-        }
-        
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-            color: var(--dark);
-        }
-        
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        
-        .form-actions {
-            grid-column: 1 / -1;
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-        }
-        
-        .external-link {
-            color: var(--secondary);
-            text-decoration: none;
-            font-size: 0.85em;
-            display: inline-block;
-            margin-top: 5px;
-            font-weight: 600;
-        }
-        
-        .external-link:hover {
-            text-decoration: underline;
-        }
-        
-        .link-badge {
-            display: inline-block;
-            background: #e8f4fd;
-            color: var(--secondary);
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 0.8em;
-            margin-top: 4px;
-        }
-        
-        .auto-save-indicator {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            padding: 10px 15px;
-            background: var(--success);
-            color: white;
-            border-radius: 5px;
-            display: none;
-            z-index: 1000;
-        }
-        
-        .photo-upload {
-            grid-column: 1 / -1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        
-        .photo-preview {
-            width: 150px;
-            height: 150px;
-            border: 2px dashed #ccc;
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            margin-bottom: 10px;
-        }
-        
-        .photo-preview img {
-            max-width: 100%;
-            max-height: 100%;
-            display: none;
-        }
-        
-        .photo-placeholder {
-            text-align: center;
-            color: #888;
-        }
-        
-        .photo-placeholder i {
-            font-size: 3rem;
-            margin-bottom: 10px;
-        }
-        
-        .photo-upload-btn {
-            padding: 8px 15px;
-            background: var(--secondary);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        
-        .candidate-photo {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 1px solid #ddd;
-        }
-        
-        @media (max-width: 1200px) {
-            table {
-                display: block;
-                overflow-x: auto;
-            }
-            
-            th, td {
-                min-width: 150px;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .controls {
-                flex-direction: column;
-            }
-            
-            .search-box {
-                width: 100%;
-                min-width: auto;
-            }
-            
-            .buttons {
-                width: 100%;
-                justify-content: center;
-            }
-            
-            .candidate-form {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Msoo Online Restaurant</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  body{font-family:Arial,Helvetica,sans-serif;margin:0;background:#f5f5f5;color:#333;}
+  header{background:#fff;padding:15px 20px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 6px rgba(0,0,0,0.1);}
+  header h1{color:#e25822;margin:0;}
+  nav a{margin-left:20px;text-decoration:none;color:#333;font-weight:bold;}
+  nav a:hover{color:#e25822;}
+  .container{max-width:1200px;margin:auto;padding:20px;}
+  .menu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px;}
+  .item-card{background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,0.1);display:flex;flex-direction:column;}
+  .item-card img{width:100%;height:200px;object-fit:cover;}
+  .item-body{padding:15px;flex:1;display:flex;flex-direction:column;}
+  .item-body h3{margin:0 0 5px;}
+  .price{color:#e25822;font-weight:bold;margin-bottom:10px;}
+  button{background:#e25822;color:#fff;border:none;padding:10px;border-radius:5px;cursor:pointer;font-weight:bold;}
+  button:hover{background:#c94b1c;}
+  .cart-count{background:#e25822;color:#fff;border-radius:50%;padding:2px 7px;font-size:12px;margin-left:5px;}
+  .hidden{display:none;}
+  .modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);display:flex;justify-content:center;align-items:center;z-index:1000;}
+  .modal-content{background:#fff;padding:20px;border-radius:10px;width:90%;max-width:600px;max-height:90vh;overflow:auto;}
+  .close{float:right;font-size:20px;cursor:pointer;}
+  form label{display:block;margin-top:10px;font-weight:bold;}
+  form input,form textarea,form select{width:100%;padding:8px;margin-top:5px;}
+  #adminSection h2{margin-top:30px;}
+  .order{border-bottom:1px solid #ddd;padding:10px 0;}
+</style>
 </head>
 <body>
-    <div class="container" id="appContainer">
-        <header>
-            <h1><i class="fas fa-users"></i> Recruitment Candidates Oversight</h1>
-            <p>Track candidate progress and status for recruitment platform</p>
-        </header>
-        
-        <div class="controls">
-            <div class="search-box">
-                <i class="fas fa-search"></i>
-                <input type="text" id="searchInput" placeholder="Search candidates by name or passport number...">
-            </div>
-            <div class="buttons">
-                <button class="btn-primary" id="addCandidateBtn"><i class="fas fa-plus"></i> Add Candidate</button>
-                <button class="btn-success" id="exportBtn"><i class="fas fa-file-export"></i> Export to CSV</button>
-                <button class="btn-danger" id="emailBtn"><i class="fas fa-envelope"></i> Send to Gmail</button>
-            </div>
-        </div>
-        
-        <div class="candidate-form" id="candidateForm" style="display: none;">
-            <div class="photo-upload">
-                <div class="photo-preview" id="photoPreview">
-                    <div class="photo-placeholder">
-                        <i class="fas fa-user"></i>
-                        <p>Passport Photo</p>
-                    </div>
-                    <img id="photoPreviewImg" src="" alt="Candidate Photo">
-                </div>
-                <input type="file" id="photoUpload" accept="image/*" style="display: none;">
-                <button class="photo-upload-btn" id="photoUploadBtn"><i class="fas fa-upload"></i> Upload Photo</button>
-            </div>
-            
-            <div class="form-group">
-                <label for="candidateName">Candidate Name *</label>
-                <input type="text" id="candidateName" placeholder="Enter full name" required>
-            </div>
-            <div class="form-group">
-                <label for="phoneNumber">Phone Number *</label>
-                <input type="text" id="phoneNumber" placeholder="Enter phone number" required>
-            </div>
-            <div class="form-group">
-                <label for="passportNo">Passport Number *</label>
-                <input type="text" id="passportNo" placeholder="Enter passport number" required>
-            </div>
-            <div class="form-group">
-                <label for="idNumber">ID Number *</label>
-                <input type="text" id="idNumber" placeholder="Enter ID number" required>
-            </div>
-            <div class="form-group">
-                <label for="jobCategory">Job Category *</label>
-                <input type="text" id="jobCategory" placeholder="Enter job category" required>
-            </div>
-            <div class="form-group">
-                <label for="client">Client *</label>
-                <input type="text" id="client" placeholder="Enter client name" required>
-            </div>
-            <div class="form-group">
-                <label for="nextOfKin">Next of Kin</label>
-                <input type="text" id="nextOfKin" placeholder="Enter next of kin name">
-            </div>
-            <div class="form-group">
-                <label for="nextOfKinPhone">Next of Kin Phone</label>
-                <input type="text" id="nextOfKinPhone" placeholder="Enter next of kin phone">
-            </div>
-            <input type="hidden" id="editIndex" value="-1">
-            <div class="form-actions">
-                <button class="btn-danger" id="cancelBtn">Cancel</button>
-                <button class="btn-success" id="saveBtn">Save Candidate</button>
-            </div>
-        </div>
-        
-        <table>
-            <thead>
-                <tr>
-                    <th>Photo</th>
-                    <th>Candidate Name</th>
-                    <th>Phone Number</th>
-                    <th>Passport No.</th>
-                    <th>ID Number</th>
-                    <th>Job Category</th>
-                    <th>Client</th>
-                    <th>Status</th>
-                    <th>Visa Status</th>
-                    <th>Medical</th>
-                    <th>Training</th>
-                    <th>Contract</th>
-                    <th>VFS</th>
-                    <th>Attestation</th>
-                    <th>Good Conduct</th>
-                    <th>Embassy</th>
-                    <th>Airport</th>
-                    <th>Flight</th>
-                    <th>Departure</th>
-                    <th>Next of Kin</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="candidateTableBody">
-                <!-- Table content will be generated dynamically -->
-            </tbody>
-        </table>
-        
-        <div class="alert-section">
-            <h2><i class="fas fa-exclamation-triangle"></i> Pending Status Alerts</h2>
-            <div id="alertsContainer">
-                <!-- Alerts will be generated dynamically -->
-            </div>
-        </div>
-        
-        <div class="auto-save-indicator" id="autoSaveIndicator">
-            <i class="fas fa-check-circle"></i> Changes saved automatically
-        </div>
-    </div>
+<header>
+  <h1>Msoo Restaurant</h1>
+  <nav>
+    <a href="#" onclick="showCart()">Cart <span id="cartCount" class="cart-count">0</span></a>
+    <a href="#" onclick="openLogin()">Admin</a>
+  </nav>
+</header>
 
-    <script>
-        // Initialize jsPDF
-        window.jsPDF = window.jspdf.jsPDF;
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            // Sample data for demonstration
-            const sampleCandidates = [
-                {
-                    name: "Ahmed Hassan",
-                    phone: "+966 12 345 6789",
-                    passport: "A12345678",
-                    idNumber: "12345678",
-                    jobCategory: "Driver",
-                    client: "Al-Nasser Co.",
-                    status: "Active",
-                    visaStatus: "Approved",
-                    medical: "Fit",
-                    training: "In Progress",
-                    contract: "Sent to Employer",
-                    vfs: "Booked",
-                    attestation: "✅ Issued",
-                    goodConduct: "Applied",
-                    embassy: "Scheduled",
-                    airportClearance: "Booked",
-                    flight: "❌ Rejected",
-                    departure: "2023-12-15",
-                    nextOfKin: "Fatima Hassan",
-                    nextOfKinPhone: "+254 712 345 678",
-                    notes: "Need to follow up on training",
-                    photo: null
-                },
-                {
-                    name: "Mohammed Ali",
-                    phone: "+966 98 765 4321",
-                    passport: "B87654321",
-                    idNumber: "87654321",
-                    jobCategory: "Accountant",
-                    client: "Al-Rajhi Ltd",
-                    status: "Active",
-                    visaStatus: "Applied",
-                    medical: "Pending",
-                    training: "Completed",
-                    contract: "Verified",
-                    vfs: "Attended",
-                    attestation: "❌ Rejected",
-                    goodConduct: "Approved",
-                    embassy: "Approved",
-                    airportClearance: "Not Booked",
-                    flight: "⏳ In Process",
-                    departure: "2023-11-30",
-                    nextOfKin: "Aisha Ali",
-                    nextOfKinPhone: "+254 723 456 789",
-                    notes: "Attestation needs resubmission",
-                    photo: null
-                }
-            ];
-            
-            let candidates = JSON.parse(localStorage.getItem('candidates')) || sampleCandidates;
-            let currentPhoto = null;
-            
-            // Initialize the table
-            renderCandidatesTable();
-            updateAlerts();
-            
-            // Photo upload functionality
-            const photoUploadBtn = document.getElementById('photoUploadBtn');
-            const photoUpload = document.getElementById('photoUpload');
-            const photoPreview = document.getElementById('photoPreview');
-            const photoPreviewImg = document.getElementById('photoPreviewImg');
-            
-            photoUploadBtn.addEventListener('click', function() {
-                photoUpload.click();
-            });
-            
-            photoUpload.addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(event) {
-                        photoPreviewImg.src = event.target.result;
-                        photoPreviewImg.style.display = 'block';
-                        document.querySelector('.photo-placeholder').style.display = 'none';
-                        currentPhoto = event.target.result;
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-            
-            // Toggle candidate form
-            document.getElementById('addCandidateBtn').addEventListener('click', function() {
-                const form = document.getElementById('candidateForm');
-                form.style.display = form.style.display === 'none' ? 'grid' : 'none';
-                document.getElementById('editIndex').value = "-1";
-                document.getElementById('candidateForm').reset();
-                currentPhoto = null;
-                photoPreviewImg.style.display = 'none';
-                document.querySelector('.photo-placeholder').style.display = 'block';
-            });
-            
-            document.getElementById('cancelBtn').addEventListener('click', function() {
-                document.getElementById('candidateForm').style.display = 'none';
-            });
-            
-            // Save new candidate
-            document.getElementById('saveBtn').addEventListener('click', function() {
-                const editIndex = parseInt(document.getElementById('editIndex').value);
-                const newCandidate = {
-                    name: document.getElementById('candidateName').value,
-                    phone: document.getElementById('phoneNumber').value,
-                    passport: document.getElementById('passportNo').value,
-                    idNumber: document.getElementById('idNumber').value,
-                    jobCategory: document.getElementById('jobCategory').value,
-                    client: document.getElementById('client').value,
-                    status: "Active",
-                    visaStatus: "Not Applied",
-                    medical: "Not Done",
-                    training: "Not Started",
-                    contract: "Not Signed",
-                    vfs: "Not Booked",
-                    attestation: "⏳ In Process",
-                    goodConduct: "Not Applied",
-                    embassy: "Not Scheduled",
-                    airportClearance: "Not Booked",
-                    flight: "⏳ In Process",
-                    departure: "",
-                    nextOfKin: document.getElementById('nextOfKin').value,
-                    nextOfKinPhone: document.getElementById('nextOfKinPhone').value,
-                    notes: "",
-                    photo: currentPhoto
-                };
-                
-                if (editIndex >= 0) {
-                    // Update existing candidate
-                    candidates[editIndex] = newCandidate;
-                } else {
-                    // Add new candidate
-                    candidates.push(newCandidate);
-                }
-                
-                saveToLocalStorage();
-                showAutoSaveIndicator();
-                renderCandidatesTable();
-                updateAlerts();
-                
-                // Reset form
-                document.getElementById('candidateForm').reset();
-                document.getElementById('candidateForm').style.display = 'none';
-                currentPhoto = null;
-                photoPreviewImg.style.display = 'none';
-                document.querySelector('.photo-placeholder').style.display = 'block';
-            });
-            
-            // Search functionality
-            document.getElementById('searchInput').addEventListener('input', function(e) {
-                const searchTerm = e.target.value.toLowerCase();
-                const filteredCandidates = candidates.filter(candidate => 
-                    candidate.name.toLowerCase().includes(searchTerm) || 
-                    candidate.passport.toLowerCase().includes(searchTerm) ||
-                    candidate.idNumber.toLowerCase().includes(searchTerm)
-                );
-                renderCandidatesTable(filteredCandidates);
-            });
-            
-            // Export to CSV
-            document.getElementById('exportBtn').addEventListener('click', function() {
-                exportToCSV();
-            });
-            
-            // Send to Gmail
-            document.getElementById('emailBtn').addEventListener('click', function() {
-                sendToGmail();
-            });
-            
-            // Auto-save functionality
-            let saveTimeout;
-            function scheduleSave() {
-                clearTimeout(saveTimeout);
-                saveTimeout = setTimeout(() => {
-                    saveToLocalStorage();
-                    showAutoSaveIndicator();
-                }, 2000);
-            }
-            
-            function showAutoSaveIndicator() {
-                const autoSaveIndicator = document.getElementById('autoSaveIndicator');
-                autoSaveIndicator.style.display = 'block';
-                setTimeout(() => {
-                    autoSaveIndicator.style.display = 'none';
-                }, 3000);
-            }
-            
-            // Render candidates table
-            function renderCandidatesTable(candidatesToRender = candidates) {
-                const tableBody = document.getElementById('candidateTableBody');
-                tableBody.innerHTML = '';
-                
-                candidatesToRender.forEach((candidate, index) => {
-                    const row = document.createElement('tr');
-                    
-                    row.innerHTML = `
-                        <td>
-                            ${candidate.photo ? 
-                                `<img src="${candidate.photo}" class="candidate-photo" alt="${candidate.name}">` : 
-                                `<div class="candidate-photo" style="background: #eee; display: flex; align-items: center; justify-content: center;">
-                                    <i class="fas fa-user" style="color: #888;"></i>
-                                </div>`
-                            }
-                        </td>
-                        <td>${candidate.name}</td>
-                        <td>${candidate.phone}</td>
-                        <td>${candidate.passport}</td>
-                        <td>${candidate.idNumber}</td>
-                        <td>${candidate.jobCategory}</td>
-                        <td>${candidate.client}</td>
-                        <td>${candidate.status}</td>
-                        <td>
-                            <select class="status-select" onchange="updateStatus(${index}, 'visaStatus', this.value)">
-                                <option value="Not Applied" ${candidate.visaStatus === 'Not Applied' ? 'selected' : ''}>Not Applied</option>
-                                <option value="Applied" ${candidate.visaStatus === 'Applied' ? 'selected' : ''}>Applied</option>
-                                <option value="Approved" ${candidate.visaStatus === 'Approved' ? 'selected' : ''}>Approved</option>
-                                <option value="Rejected" ${candidate.visaStatus === 'Rejected' ? 'selected' : ''}>Rejected</option>
-                                <option value="Issued" ${candidate.visaStatus === 'Issued' ? 'selected' : ''}>Issued</option>
-                                <option value="Expired" ${candidate.visaStatus === 'Expired' ? 'selected' : ''}>Expired</option>
-                            </select>
-                        </td>
-                        <td>
-                            <select class="status-select" onchange="updateStatus(${index}, 'medical', this.value)">
-                                <option value="Not Done" ${candidate.medical === 'Not Done' ? 'selected' : ''}>Not Done</option>
-                                <option value="Fit" ${candidate.medical === 'Fit' ? 'selected' : ''}>Fit</option>
-                                <option value="Unfit" ${candidate.medical === 'Unfit' ? 'selected' : ''}>Unfit</option>
-                                <option value="Pending" ${candidate.medical === 'Pending' ? 'selected' : ''}>Pending</option>
-                                <option value="Referred" ${candidate.medical === 'Referred' ? 'selected' : ''}>Referred</option>
-                            </select>
-                            <div class="link-badge"><a href="https://wafid.com" class="external-link" target="_blank">WAFID</a></div>
-                        </td>
-                        <td>
-                            <select class="status-select" onchange="updateStatus(${index}, 'training', this.value)">
-                                <option value="Not Started" ${candidate.training === 'Not Started' ? 'selected' : ''}>Not Started</option>
-                                <option value="In Progress" ${candidate.training === 'In Progress' ? 'selected' : ''}>In Progress</option>
-                                <option value="Completed" ${candidate.training === 'Completed' ? 'selected' : ''}>Completed</option>
-                                <option value="Failed" ${candidate.training === 'Failed' ? 'selected' : ''}>Failed</option>
-                            </select>
-                        </td>
-                        <td>
-                            <select class="status-select" onchange="updateStatus(${index}, 'contract', this.value)">
-                                <option value="Not Signed" ${candidate.contract === 'Not Signed' ? 'selected' : ''}>Not Signed</option>
-                                <option value="Signed" ${candidate.contract === 'Signed' ? 'selected' : ''}>Signed</option>
-                                <option value="Sent to Employer" ${candidate.contract === 'Sent to Employer' ? 'selected' : ''}>Sent to Employer</option>
-                                <option value="Returned" ${candidate.contract === 'Returned' ? 'selected' : ''}>Returned</option>
-                                <option value="Verified" ${candidate.contract === 'Verified' ? 'selected' : ''}>Verified</option>
-                            </select>
-                        </td>
-                        <td>
-                            <select class="status-select" onchange="updateStatus(${index}, 'vfs', this.value)">
-                                <option value="Not Booked" ${candidate.vfs === 'Not Booked' ? 'selected' : ''}>Not Booked</option>
-                                <option value="Booked" ${candidate.vfs === 'Booked' ? 'selected' : ''}>Booked</option>
-                                <option value="Attended" ${candidate.vfs === 'Attended' ? 'selected' : ''}>Attended</option>
-                                <option value="Rescheduled" ${candidate.vfs === 'Rescheduled' ? 'selected' : ''}>Rescheduled</option>
-                                <option value="Missed" ${candidate.vfs === 'Missed' ? 'selected' : ''}>Missed</option>
-                            </select>
-                        </td>
-                        <td>
-                            <select class="status-select" onchange="updateStatus(${index}, 'attestation', this.value)">
-                                <option value="⏳ In Process" ${candidate.attestation === '⏳ In Process' ? 'selected' : ''}>⏳ In Process</option>
-                                <option value="✅ Issued" ${candidate.attestation === '✅ Issued' ? 'selected' : ''}>✅ Issued</option>
-                                <option value="❌ Rejected" ${candidate.attestation === '❌ Rejected' ? 'selected' : ''}>❌ Rejected</option>
-                            </select>
-                            <div class="link-badge"><a href="https://mfa.ecitizen.go.ke" class="external-link" target="_blank">MFA</a></div>
-                        </td>
-                        <td>
-                            <select class="status-select" onchange="updateStatus(${index}, 'goodConduct', this.value)">
-                                <option value="Not Applied" ${candidate.goodConduct === 'Not Applied' ? 'selected' : ''}>Not Applied</option>
-                                <option value="Applied" ${candidate.goodConduct === 'Applied' ? 'selected' : ''}>Applied</option>
-                                <option value="Approved" ${candidate.goodConduct === 'Approved' ? 'selected' : ''}>Approved</option>
-                                <option value="Rejected" ${candidate.goodConduct === 'Rejected' ? 'selected' : ''}>Rejected</option>
-                                <option value="Expired" ${candidate.goodConduct === 'Expired' ? 'selected' : ''}>Expired</option>
-                            </select>
-                            <div class="link-badge"><a href="https://dci.ecitizen.go.ke" class="external-link" target="_blank">DCI</a></div>
-                        </td>
-                        <td>
-                            <select class="status-select" onchange="updateStatus(${index}, 'embassy', this.value)">
-                                <option value="Not Scheduled" ${candidate.embassy === 'Not Scheduled' ? 'selected' : ''}>Not Scheduled</option>
-                                <option value="Scheduled" ${candidate.embassy === 'Scheduled' ? 'selected' : ''}>Scheduled</option>
-                                <option value="Attended" ${candidate.embassy === 'Attended' ? 'selected' : ''}>Attended</option>
-                                <option value="Approved" ${candidate.embassy === 'Approved' ? 'selected' : ''}>Approved</option>
-                                <option value="Rejected" ${candidate.embassy === 'Rejected' ? 'selected' : ''}>Rejected</option>
-                            </select>
-                        </td>
-                        <td>
-                            <select class="status-select" onchange="updateStatus(${index}, 'airportClearance', this.value)">
-                                <option value="Not Booked" ${candidate.airportClearance === 'Not Booked' ? 'selected' : ''}>Not Booked</option>
-                                <option value="Booked" ${candidate.airportClearance === 'Booked' ? 'selected' : ''}>Booked</option>
-                                <option value="Departed" ${candidate.airportClearance === 'Departed' ? 'selected' : ''}>Departed</option>
-                                <option value="No Show" ${candidate.airportClearance === 'No Show' ? 'selected' : ''}>No Show</option>
-                                <option value="Rescheduled" ${candidate.airportClearance === 'Rescheduled' ? 'selected' : ''}>Rescheduled</option>
-                            </select>
-                            <div class="link-badge"><a href="https://neaims.go.ke" class="external-link" target="_blank">NEA</a></div>
-                        </td>
-                        <td>
-                            <select class="status-select" onchange="updateStatus(${index}, 'flight', this.value)">
-                                <option value="⏳ In Process" ${candidate.flight === '⏳ In Process' ? 'selected' : ''}>⏳ In Process</option>
-                                <option value="✅ Issued" ${candidate.flight === '✅ Issued' ? 'selected' : ''}>✅ Issued</option>
-                                <option value="❌ Rejected" ${candidate.flight === '❌ Rejected' ? 'selected' : ''}>❌ Rejected</option>
-                            </select>
-                        </td>
-                        <td><input type="date" value="${candidate.departure}" onchange="updateDepartureDate(${index}, this.value)"></td>
-                        <td>${candidate.nextOfKin}<br><small>${candidate.nextOfKinPhone}</small></td>
-                        <td>
-                            <button class="action-btn edit-btn" onclick="editCandidate(${index})"><i class="fas fa-edit"></i> Edit</button>
-                            <button class="action-btn pdf-btn" onclick="exportToPDF(${index})"><i class="fas fa-file-pdf"></i> PDF</button>
-                            <button class="action-btn delete-btn" onclick="deleteCandidate(${index})"><i class="fas fa-trash"></i> Delete</button>
-                        </td>
-                    `;
-                    
-                    tableBody.appendChild(row);
-                });
-            }
-            
-            // Update status function
-            window.updateStatus = function(index, field, value) {
-                candidates[index][field] = value;
-                saveToLocalStorage();
-                scheduleSave();
-                updateAlerts();
-            }
-            
-            // Update departure date
-            window.updateDepartureDate = function(index, value) {
-                candidates[index].departure = value;
-                saveToLocalStorage();
-                scheduleSave();
-            }
-            
-            // Edit candidate
-            window.editCandidate = function(index) {
-                const candidate = candidates[index];
-                document.getElementById('candidateName').value = candidate.name;
-                document.getElementById('phoneNumber').value = candidate.phone;
-                document.getElementById('passportNo').value = candidate.passport;
-                document.getElementById('idNumber').value = candidate.idNumber;
-                document.getElementById('jobCategory').value = candidate.jobCategory;
-                document.getElementById('client').value = candidate.client;
-                document.getElementById('nextOfKin').value = candidate.nextOfKin;
-                document.getElementById('nextOfKinPhone').value = candidate.nextOfKinPhone;
-                document.getElementById('editIndex').value = index;
-                
-                if (candidate.photo) {
-                    photoPreviewImg.src = candidate.photo;
-                    photoPreviewImg.style.display = 'block';
-                    document.querySelector('.photo-placeholder').style.display = 'none';
-                    currentPhoto = candidate.photo;
-                } else {
-                    photoPreviewImg.style.display = 'none';
-                    document.querySelector('.photo-placeholder').style.display = 'block';
-                    currentPhoto = null;
-                }
-                
-                document.getElementById('candidateForm').style.display = 'grid';
-            }
-            
-            // Delete candidate
-            window.deleteCandidate = function(index) {
-                if (confirm('Are you sure you want to delete this candidate?')) {
-                    candidates.splice(index, 1);
-                    saveToLocalStorage();
-                    scheduleSave();
-                    renderCandidatesTable();
-                    updateAlerts();
-                }
-            }
-            
-            // Export to PDF
-            window.exportToPDF = function(index) {
-                const candidate = candidates[index];
-                const doc = new jsPDF();
-                
-                // Title
-                doc.setFontSize(20);
-                doc.setTextColor(40, 40, 40);
-                doc.text('Candidate Details', 105, 20, { align: 'center' });
-                
-                // Add candidate photo if available
-                if (candidate.photo) {
-                    doc.addImage(candidate.photo, 'JPEG', 150, 15, 40, 40);
-                }
-                
-                // Candidate Information
-                doc.setFontSize(12);
-                doc.text(`Name: ${candidate.name}`, 20, 35);
-                doc.text(`Phone: ${candidate.phone}`, 20, 45);
-                doc.text(`Passport: ${candidate.passport}`, 20, 55);
-                doc.text(`ID Number: ${candidate.idNumber}`, 20, 65);
-                doc.text(`Job Category: ${candidate.jobCategory}`, 20, 75);
-                doc.text(`Client: ${candidate.client}`, 20, 85);
-                
-                // Next of Kin Information
-                doc.text(`Next of Kin: ${candidate.nextOfKin}`, 20, 100);
-                doc.text(`Next of Kin Phone: ${candidate.nextOfKinPhone}`, 20, 110);
-                
-                // Status Information Table
-                doc.setFontSize(14);
-                doc.text('Status Information', 20, 125);
-                
-                // Prepare table data
-                const tableColumn = ["Status", "Value"];
-                const tableRows = [
-                    ["Visa Status", candidate.visaStatus],
-                    ["Medical Clearance", candidate.medical],
-                    ["Training Completed", candidate.training],
-                    ["Contract Signed", candidate.contract],
-                    ["VFS Appointment", candidate.vfs],
-                    ["Attestation", candidate.attestation],
-                    ["Good Conduct", candidate.goodConduct],
-                    ["Embassy Status", candidate.embassy],
-                    ["Airport Clearance", candidate.airportClearance],
-                    ["Flight Status", candidate.flight],
-                    ["Departure Date", candidate.departure]
-                ];
-                
-                // Generate the table
-                doc.autoTable({
-                    startY: 130,
-                    head: [tableColumn],
-                    body: tableRows,
-                    theme: 'grid',
-                    styles: { fontSize: 10 },
-                    headStyles: { fillColor: [44, 62, 80] }
-                });
-                
-                // Save the PDF
-                doc.save(`Candidate_${candidate.name}_${candidate.passport}.pdf`);
-            }
-            
-            // Update alerts
-            function updateAlerts() {
-                const alertsContainer = document.getElementById('alertsContainer');
-                alertsContainer.innerHTML = '';
-                
-                let hasAlerts = false;
-                
-                candidates.forEach((candidate, index) => {
-                    const alerts = [];
-                    
-                    // Check for pending statuses
-                    if (candidate.visaStatus === 'Not Applied' || candidate.visaStatus === 'Applied') {
-                        alerts.push(`Visa status: ${candidate.visaStatus}`);
-                    }
-                    
-                    if (candidate.medical === 'Not Done' || candidate.medical === 'Pending' || candidate.medical === 'Referred') {
-                        alerts.push(`Medical: ${candidate.medical}`);
-                    }
-                    
-                    if (candidate.training === 'Not Started' || candidate.training === 'In Progress') {
-                        alerts.push(`Training: ${candidate.training}`);
-                    }
-                    
-                    if (candidate.contract === 'Not Signed' || candidate.contract === 'Sent to Employer' || candidate.contract === 'Returned') {
-                        alerts.push(`Contract: ${candidate.contract}`);
-                    }
-                    
-                    if (candidate.vfs === 'Not Booked' || candidate.vfs === 'Rescheduled' || candidate.vfs === 'Missed') {
-                        alerts.push(`VFS: ${candidate.vfs}`);
-                    }
-                    
-                    if (candidate.attestation === '⏳ In Process') {
-                        alerts.push(`Attestation: ${candidate.attestation}`);
-                    }
-                    
-                    if (candidate.goodConduct === 'Not Applied' || candidate.goodConduct === 'Applied') {
-                        alerts.push(`Good Conduct: ${candidate.goodConduct}`);
-                    }
-                    
-                    if (candidate.embassy === 'Not Scheduled' || candidate.embassy === 'Scheduled') {
-                        alerts.push(`Embassy: ${candidate.embassy}`);
-                    }
-                    
-                    if (candidate.airportClearance === 'Not Booked' || candidate.airportClearance === 'Rescheduled') {
-                        alerts.push(`Airport: ${candidate.airportClearance}`);
-                    }
-                    
-                    if (candidate.flight === '⏳ In Process') {
-                        alerts.push(`Flight: ${candidate.flight}`);
-                    }
-                    
-                    if (alerts.length > 0) {
-                        hasAlerts = true;
-                        const alertItem = document.createElement('div');
-                        alertItem.className = 'alert-item';
-                        
-                        alertItem.innerHTML = `
-                            <div>
-                                <strong>${candidate.name}</strong> (${candidate.passport})
-                                <div>${alerts.join(', ')}</div>
-                            </div>
-                            <button class="action-btn edit-btn" onclick="editCandidate(${index})">
-                                <i class="fas fa-edit"></i> Update
-                            </button>
-                        `;
-                        
-                        alertsContainer.appendChild(alertItem);
-                    }
-                });
-                
-                if (!hasAlerts) {
-                    alertsContainer.innerHTML = '<div class="alert-item">No pending status alerts. All processes are complete.</div>';
-                }
-            }
-            
-            // Save to localStorage
-            function saveToLocalStorage() {
-                localStorage.setItem('candidates', JSON.stringify(candidates));
-            }
-            
-            // Export to CSV
-            function exportToCSV() {
-                let csvContent = "data:text/csv;charset=utf-8,";
-                
-                // Header row
-                const headers = [
-                    "Name", "Phone", "Passport", "ID Number", "Job Category", "Client", 
-                    "Status", "Visa Status", "Medical", "Training", "Contract", "VFS", 
-                    "Attestation", "Good Conduct", "Embassy", "Airport", "Flight", 
-                    "Departure", "Next of Kin", "Next of Kin Phone"
-                ];
-                csvContent += headers.join(",") + "\r\n";
-                
-                // Data rows
-                candidates.forEach(candidate => {
-                    const row = [
-                        candidate.name,
-                        candidate.phone,
-                        candidate.passport,
-                        candidate.idNumber,
-                        candidate.jobCategory,
-                        candidate.client,
-                        candidate.status,
-                        candidate.visaStatus,
-                        candidate.medical,
-                        candidate.training,
-                        candidate.contract,
-                        candidate.vfs,
-                        candidate.attestation,
-                        candidate.goodConduct,
-                        candidate.embassy,
-                        candidate.airportClearance,
-                        candidate.flight,
-                        candidate.departure,
-                        candidate.nextOfKin,
-                        candidate.nextOfKinPhone
-                    ].map(field => `"${field}"`).join(",");
-                    
-                    csvContent += row + "\r\n";
-                });
-                
-                // Create download link
-                const encodedUri = encodeURI(csvContent);
-                const link = document.createElement("a");
-                link.setAttribute("href", encodedUri);
-                link.setAttribute("download", "candidates_data.csv");
-                document.body.appendChild(link);
-                
-                // Trigger download
-                link.click();
-                document.body.removeChild(link);
-            }
-            
-            // Send to Gmail
-            function sendToGmail() {
-                const subject = "Recruitment Candidates Data";
-                let body = "Here is the current candidates data:\n\n";
-                
-                candidates.forEach(candidate => {
-                    body += `Name: ${candidate.name}\n`;
-                    body += `Phone: ${candidate.phone}\n`;
-                    body += `Passport: ${candidate.passport}\n`;
-                    body += `Job Category: ${candidate.jobCategory}\n`;
-                    body += `Client: ${candidate.client}\n`;
-                    body += `Status: ${candidate.status}\n`;
-                    body += `Visa Status: ${candidate.visaStatus}\n`;
-                    body += `Medical: ${candidate.medical}\n`;
-                    body += `Training: ${candidate.training}\n`;
-                    body += `Contract: ${candidate.contract}\n`;
-                    body += `VFS: ${candidate.vfs}\n`;
-                    body += `Attestation: ${candidate.attestation}\n`;
-                    body += `Good Conduct: ${candidate.goodConduct}\n`;
-                    body += `Embassy: ${candidate.embassy}\n`;
-                    body += `Airport: ${candidate.airportClearance}\n`;
-                    body += `Flight: ${candidate.flight}\n`;
-                    body += `Departure: ${candidate.departure}\n`;
-                    body += `Next of Kin: ${candidate.nextOfKin} (${candidate.nextOfKinPhone})\n`;
-                    body += "------------------------\n\n";
-                });
-                
-                const mailtoLink = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-                window.location.href = mailtoLink;
-            }
-        });
-    </script>
+<div class="container">
+  <h2>Menu</h2>
+  <div id="menuGrid" class="menu-grid"></div>
+</div>
+
+<!-- Cart Modal -->
+<div id="cartModal" class="modal hidden">
+  <div class="modal-content">
+    <span class="close" onclick="hideCart()">&times;</span>
+    <h2>Your Cart</h2>
+    <div id="cartItems"></div>
+    <p><strong>Total: Ksh <span id="cartTotal">0</span></strong></p>
+    <form id="checkoutForm">
+      <label>Phone Number</label>
+      <input type="text" id="checkoutPhone" required>
+      <label>Delivery Location</label>
+      <input type="text" id="checkoutLocation" required>
+      <button type="submit">Place Order</button>
+    </form>
+  </div>
+</div>
+
+<!-- Admin Login Modal -->
+<div id="loginModal" class="modal hidden">
+  <div class="modal-content">
+    <span class="close" onclick="closeLogin()">&times;</span>
+    <h2>Admin Login</h2>
+    <form id="loginForm">
+      <label>Email</label><input type="email" id="loginEmail" required>
+      <label>Password</label><input type="password" id="loginPassword" required>
+      <button type="submit">Login</button>
+    </form>
+  </div>
+</div>
+
+<!-- Admin Panel -->
+<div id="adminSection" class="container hidden">
+  <h2>Admin Dashboard</h2>
+  <h3>Add Menu Item</h3>
+  <form id="addItemForm">
+    <label>Name</label><input type="text" id="itemName" required>
+    <label>Price (Ksh)</label><input type="number" id="itemPrice" required>
+    <label>Category</label>
+    <select id="itemCategory">
+      <option value="meals">Meal</option>
+      <option value="drinks">Drink</option>
+    </select>
+    <label>Description</label><textarea id="itemDescription" required></textarea>
+    <label>Upload Photo (optional)</label><input type="file" id="itemPhoto" accept="image/*">
+    <button type="button" onclick="generateImage()">Generate Photo with AI</button>
+    <button type="submit">Add Item</button>
+  </form>
+
+  <h3>Orders</h3>
+  <div id="ordersList"></div>
+</div>
+
+<script>
+const menuGrid = document.getElementById('menuGrid');
+const cartModal = document.getElementById('cartModal');
+const loginModal = document.getElementById('loginModal');
+const adminSection = document.getElementById('adminSection');
+const cartCount = document.getElementById('cartCount');
+const cartItemsDiv = document.getElementById('cartItems');
+const cartTotal = document.getElementById('cartTotal');
+const ordersList = document.getElementById('ordersList');
+let cart = [];
+let adminToken = null;
+
+// Fetch menu from backend
+async function loadMenu(){
+  const r = await fetch('/api/items');
+  const j = await r.json();
+  menuGrid.innerHTML = '';
+  j.items.forEach(item=>{
+    const div = document.createElement('div');
+    div.className='item-card';
+    div.innerHTML = `
+      <img src="${item.image || 'https://via.placeholder.com/400x300'}" alt="">
+      <div class="item-body">
+        <h3>${item.name}</h3>
+        <div class="price">Ksh ${item.price}</div>
+        <p>${item.description||''}</p>
+        <button onclick='addToCart(${JSON.stringify(item)})'>Add to Cart</button>
+      </div>`;
+    menuGrid.appendChild(div);
+  });
+}
+
+function addToCart(item){
+  const existing = cart.find(i=>i.id===item.id);
+  if(existing) existing.quantity++;
+  else cart.push({...item, quantity:1});
+  updateCartCount();
+}
+
+function updateCartCount(){
+  cartCount.textContent = cart.reduce((s,i)=>s+i.quantity,0);
+}
+
+function showCart(){
+  cartModal.classList.remove('hidden');
+  renderCart();
+}
+
+function hideCart(){cartModal.classList.add('hidden');}
+
+function renderCart(){
+  cartItemsDiv.innerHTML='';
+  let total=0;
+  cart.forEach(i=>{
+    total += i.price * i.quantity;
+    cartItemsDiv.innerHTML += `<div>${i.name} x${i.quantity} - Ksh ${i.price*i.quantity}</div>`;
+  });
+  cartTotal.textContent = total;
+}
+
+document.getElementById('checkoutForm').onsubmit = async e=>{
+  e.preventDefault();
+  if(cart.length===0){alert('Cart is empty');return;}
+  const phone = document.getElementById('checkoutPhone').value;
+  const location = document.getElementById('checkoutLocation').value;
+  const body = {
+    items: cart.map(i=>({id:i.id,name:i.name,price:i.price,quantity:i.quantity})),
+    total: cart.reduce((s,i)=>s+i.price*i.quantity,0),
+    phone, location
+  };
+  const r = await fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j = await r.json();
+  if(j.ok){
+    alert('Order placed!');
+    cart=[];updateCartCount();hideCart();
+    if(adminToken) loadOrders();
+  } else alert('Error placing order');
+};
+
+// ---------- Admin ----------
+function openLogin(){loginModal.classList.remove('hidden');}
+function closeLogin(){loginModal.classList.add('hidden');}
+
+document.getElementById('loginForm').onsubmit = async e=>{
+  e.preventDefault();
+  const email = document.getElementById('loginEmail').value;
+  const password = document.getElementById('loginPassword').value;
+  const r = await fetch('/api/admin/login',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({email,password})
+  });
+  const j = await r.json();
+  if(j.ok){
+    adminToken = j.token;
+    loginModal.classList.add('hidden');
+    adminSection.classList.remove('hidden');
+    loadOrders();
+  } else alert('Login failed');
+};
+
+async function loadOrders(){
+  const r = await fetch('/api/orders');
+  const j = await r.json();
+  ordersList.innerHTML='';
+  j.orders.forEach(o=>{
+    ordersList.innerHTML += `<div class='order'>
+      <strong>Order ${o.id}</strong> (${new Date(o.date).toLocaleString()})<br>
+      Phone: ${o.phone}<br>
+      Location: ${o.location}<br>
+      Total: Ksh ${o.total}<br>
+      Items: ${o.items.map(i=>i.name+' x'+i.quantity).join(', ')}
+    </div>`;
+  });
+}
+
+// Add item (upload or generated)
+document.getElementById('addItemForm').onsubmit = async e=>{
+  e.preventDefault();
+  const name = document.getElementById('itemName').value;
+  const price = document.getElementById('itemPrice').value;
+  const category = document.getElementById('itemCategory').value;
+  const desc = document.getElementById('itemDescription').value;
+  const photo = document.getElementById('itemPhoto').files[0];
+
+  let body, headers;
+  if(photo){
+    // multipart with photo
+    const fd = new FormData();
+    fd.append('name', name);
+    fd.append('price', price);
+    fd.append('category', category);
+    fd.append('description', desc);
+    fd.append('photo', photo);
+    body = fd; headers = {}; // fetch will set multipart
+  } else {
+    // JSON without photo (server may use generated image)
+    body = JSON.stringify({name,price,category,description:desc});
+    headers = {'Content-Type':'application/json'};
+  }
+
+  const r = await fetch('/api/items',{method:'POST',body,headers});
+  const j = await r.json();
+  if(j.ok){alert('Item added');loadMenu();}
+  else alert('Error adding item');
+};
+
+// Generate photo using AI and preview/save
+async function generateImage(){
+  const name = document.getElementById('itemName').value.trim();
+  if(!name){alert('Enter item name first');return;}
+  const prompt = `A delicious, high-resolution, appetizing photo of ${name}, Kenyan cuisine`;
+  const r = await fetch('/api/generate-image',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({prompt,size:'512x512',saveAsFile:true})
+  });
+  const j = await r.json();
+  if(j.ok){
+    alert('AI image generated and will be used automatically when you add item.');
+    // store returned file path temporarily in hidden field if you want
+  } else alert('Generation failed');
+}
+
+loadMenu();
+</script>
 </body>
 </html>
