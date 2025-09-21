@@ -7,9 +7,10 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 body{background:#111;color:#fff;font-family:sans-serif;padding:20px;text-align:center}
-#video-player{width:90%;max-width:800px;background:#000;border-radius:10px}
-.controls{margin:20px auto;max-width:800px}
-#video-url{width:60%;padding:8px;border-radius:5px;border:none}
+h1{margin-bottom:20px}
+#video-player{width:90%;max-width:800px;background:#000;border-radius:10px;margin-bottom:15px}
+.controls{margin:10px auto;max-width:800px}
+#video-url{width:60%;padding:8px;border-radius:5px;border:none;margin-right:5px}
 button{padding:8px 12px;border:none;border-radius:5px;background:#e50914;color:#fff;cursor:pointer}
 .tab{display:inline-block;margin:5px;padding:8px 12px;border-radius:5px;background:#333;cursor:pointer}
 .tab.active{background:#e50914}
@@ -22,11 +23,14 @@ button{padding:8px 12px;border:none;border-radius:5px;background:#e50914;color:#
 
 <h1>DiaPlus International TV</h1>
 
-<video id="video-player" controls>Your browser does not support the video tag.</video>
+<!-- Video player with sound enabled -->
+<video id="video-player" controls preload="auto">
+  Your browser does not support the video tag.
+</video>
 
 <div class="controls">
   <input type="text" id="video-url" placeholder="Paste video URL here">
-  <button id="load-btn">Load</button>
+  <button id="load-btn">Load & Play</button>
 </div>
 
 <div>
@@ -53,7 +57,7 @@ const firebaseConfig = {
   appId: "1:261547908584:web:809d448f6b35a1b0f7985d",
   measurementId: "G-WQ2ZXZX0VV"
 };
-/* ========================================= */
+/* ========================================== */
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
@@ -68,6 +72,7 @@ const player=document.getElementById("video-player"),
 let history=JSON.parse(localStorage.getItem("videoHistory"))||[];
 let saved=[];
 
+/* ===== Rendering Functions ===== */
 function renderHistory(){
   if(history.length===0){historyDiv.innerHTML="<p>No history yet</p>";return;}
   historyDiv.innerHTML="";
@@ -94,16 +99,19 @@ function renderSaved(){
   });
 }
 
+/* ===== Player Functions ===== */
 function play(url){
-  player.src=url;
-  player.play();
+  player.src = url;
+  player.muted = false;     // Ensure sound is allowed
+  player.volume = 1;        // Full volume
+  player.play();            // Will play with sound after user click
   addHistory(url);
 }
 function addHistory(url){
-  const name=url.split("/").pop()||"Video";
-  history=history.filter(h=>h.url!==url);
+  const name = url.split("/").pop() || "Video";
+  history = history.filter(h => h.url !== url);
   history.push({url,name,date:new Date().toISOString()});
-  if(history.length>10)history=history.slice(-10);
+  if(history.length>10) history = history.slice(-10);
   localStorage.setItem("videoHistory",JSON.stringify(history));
   renderHistory();
 }
@@ -114,11 +122,12 @@ function saveLink(url,name){
   alert("Saved to cloud!");
 }
 
-loadBtn.onclick=()=>{if(urlInput.value) play(urlInput.value)};
+/* ===== Events ===== */
+loadBtn.onclick = ()=>{ if(urlInput.value) play(urlInput.value); };
 
 firebase.auth().onAuthStateChanged(async()=>{
-  const snap=await db.collection("savedLinks").get();
-  saved=snap.docs.map(d=>d.data());
+  const snap = await db.collection("savedLinks").get();
+  saved = snap.docs.map(d=>d.data());
   renderSaved();
 });
 
