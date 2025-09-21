@@ -7,10 +7,6 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 body{background:#111;color:#fff;font-family:sans-serif;padding:20px;text-align:center}
-.hidden{display:none}
-#login-box{max-width:350px;margin:80px auto;padding:20px;background:#222;border-radius:10px}
-#login-box input{width:90%;margin:8px 0;padding:8px;border:none;border-radius:5px}
-#login-box button{width:95%;padding:10px;background:#e50914;color:#fff;border:none;border-radius:5px;cursor:pointer}
 h1{margin-bottom:20px}
 #player-container{position:relative;width:90%;max-width:900px;margin:auto}
 video{width:100%;background:#000;border-radius:10px}
@@ -21,28 +17,16 @@ select{padding:5px;margin:0 5px;border-radius:5px;border:none;background:#333;co
 .tab{display:inline-block;margin:5px;padding:8px 12px;border-radius:5px;background:#333;cursor:pointer}
 .tab.active{background:#e50914}
 .list{max-width:900px;margin:10px auto;text-align:left}
-.item{background:#222;padding:8px;margin:4px 0;border-radius:5px;display:flex;justify-content:space-between;align-items:center}
-.item span{flex:1}
-.item button{background:#444;margin-left:5px}
+.item{background:#222;padding:8px;margin:4px 0;border-radius:5px;display:flex;justify-content:space-between}
+.item button{background:#444}
 </style>
 </head>
 <body>
 
-<!-- Login Screen -->
-<div id="login-box">
-  <h2>Login</h2>
-  <input type="text" id="login-user" placeholder="Username">
-  <input type="password" id="login-pass" placeholder="Password">
-  <button id="login-btn">Login</button>
-  <p id="login-msg" style="color:#f66;"></p>
-</div>
-
-<!-- Main App -->
-<div id="app" class="hidden">
-
 <h1>DiaPlus International TV</h1>
 
 <div id="player-container">
+  <!-- video element with multiple track support -->
   <video id="video-player" controls preload="auto" crossorigin="anonymous">
     Your browser does not support the video tag.
   </video>
@@ -63,38 +47,13 @@ select{padding:5px;margin:0 5px;border-radius:5px;border:none;background:#333;co
 <div id="history" class="list"></div>
 <div id="saved" class="list" style="display:none"></div>
 
-</div><!-- /app -->
-
-<!-- Firebase -->
+<!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 
 <script>
-/* ====== Simple Front-End Login ====== */
-const LOGIN_USER="Mk254ke", LOGIN_PASS="Mk@199814";
-const loginBox=document.getElementById("login-box"),
-      appBox=document.getElementById("app"),
-      loginBtn=document.getElementById("login-btn"),
-      loginMsg=document.getElementById("login-msg");
-
-loginBtn.onclick=()=>{
-  const u=document.getElementById("login-user").value.trim(),
-        p=document.getElementById("login-pass").value;
-  if(u===LOGIN_USER && p===LOGIN_PASS){
-    localStorage.setItem("dia_logged","true");
-    loginBox.classList.add("hidden");
-    appBox.classList.remove("hidden");
-  }else{
-    loginMsg.textContent="Invalid credentials";
-  }
-};
-if(localStorage.getItem("dia_logged")==="true"){
-  loginBox.classList.add("hidden");
-  appBox.classList.remove("hidden");
-}
-
-/* ====== Firebase Config ====== */
+/* ====== Your Firebase configuration ====== */
 const firebaseConfig = {
   apiKey: "AIzaSyDin-ueMfhRwZ7EOWrpYRbyhTcvtm-xZ6s",
   authDomain: "dias-aea74.firebaseapp.com",
@@ -104,11 +63,11 @@ const firebaseConfig = {
   appId: "1:261547908584:web:809d448f6b35a1b0f7985d",
   measurementId: "G-WQ2ZXZX0VV"
 };
+/* ========================================== */
 firebase.initializeApp(firebaseConfig);
-const db=firebase.firestore();
+const db = firebase.firestore();
 firebase.auth().signInAnonymously();
 
-/* ====== Elements ====== */
 const player=document.getElementById("video-player"),
       urlInput=document.getElementById("video-url"),
       loadBtn=document.getElementById("load-btn"),
@@ -120,12 +79,12 @@ const player=document.getElementById("video-player"),
 let history=JSON.parse(localStorage.getItem("videoHistory"))||[];
 let saved=[];
 
-/* ====== Player ====== */
+/* ===== Player Functions ===== */
 function play(url){
   player.src=url;
   player.muted=false;
   player.volume=1;
-  player.play();
+  player.play(); // plays after user click
   addHistory(url);
 }
 function addHistory(url){
@@ -140,25 +99,15 @@ function saveLink(url,name){
   db.collection("savedLinks").add({url,name,date:new Date().toISOString()});
   saved.push({url,name});
   renderSaved();
-}
-function deleteHistory(index){
-  history.splice(index,1);
-  localStorage.setItem("videoHistory",JSON.stringify(history));
-  renderHistory();
-}
-async function deleteSaved(index){
-  const item=saved[index];
-  const snap=await db.collection("savedLinks").where("url","==",item.url).get();
-  snap.forEach(doc=>doc.ref.delete());
-  saved.splice(index,1);
-  renderSaved();
+  alert("Saved to cloud!");
 }
 
-/* ====== Tracks ====== */
+/* ===== Audio & Subtitle Track Handling ===== */
 function populateTracks(){
   audioSel.innerHTML="<option value=''>Audio Tracks</option>";
   subtitleSel.innerHTML="<option value=''>Subtitles</option>";
-  if(player.audioTracks){
+  // audioTracks API
+  if(player.audioTracks && player.audioTracks.length){
     [...player.audioTracks].forEach((track,i)=>{
       const opt=document.createElement("option");
       opt.value=i;
@@ -166,6 +115,7 @@ function populateTracks(){
       audioSel.appendChild(opt);
     });
   }
+  // textTracks API (subtitles/captions)
   [...player.textTracks].forEach((track,i)=>{
     const opt=document.createElement("option");
     opt.value=i;
@@ -184,19 +134,17 @@ subtitleSel.onchange=()=>{
   });
 };
 
-/* ====== Render UI ====== */
+/* ===== UI Rendering ===== */
 function renderHistory(){
   if(history.length===0){historyDiv.innerHTML="<p>No history yet</p>";return;}
   historyDiv.innerHTML="";
-  history.slice().reverse().forEach((item,i)=>{
-    const idx=history.length-1-i;
+  history.slice().reverse().forEach(item=>{
     const div=document.createElement("div");
     div.className="item";
     div.innerHTML=`<span>${item.name}</span>
       <span>
         <button onclick="play('${item.url}')">▶</button>
         <button onclick="saveLink('${item.url}','${item.name}')">★</button>
-        <button onclick="deleteHistory(${idx})">🗑</button>
       </span>`;
     historyDiv.appendChild(div);
   });
@@ -204,26 +152,29 @@ function renderHistory(){
 function renderSaved(){
   if(saved.length===0){savedDiv.innerHTML="<p>No saved links yet</p>";return;}
   savedDiv.innerHTML="";
-  saved.forEach((item,i)=>{
+  saved.forEach(item=>{
     const div=document.createElement("div");
     div.className="item";
     div.innerHTML=`<span>${item.name}</span>
-      <span>
-        <button onclick="play('${item.url}')">▶</button>
-        <button onclick="deleteSaved(${i})">🗑</button>
-      </span>`;
+      <span><button onclick="play('${item.url}')">▶</button></span>`;
     savedDiv.appendChild(div);
   });
 }
 
-/* ====== Events ====== */
-loadBtn.onclick=()=>{ if(urlInput.value) play(urlInput.value); };
+/* ===== Event Wiring ===== */
+loadBtn.onclick=()=>{
+  if(urlInput.value){
+    play(urlInput.value);
+  }
+};
 player.onloadedmetadata=populateTracks;
+
 firebase.auth().onAuthStateChanged(async()=>{
   const snap=await db.collection("savedLinks").get();
   saved=snap.docs.map(d=>d.data());
   renderSaved();
 });
+
 document.querySelectorAll(".tab").forEach(t=>{
   t.onclick=()=>{
     document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
@@ -232,6 +183,7 @@ document.querySelectorAll(".tab").forEach(t=>{
     savedDiv.style.display   = t.dataset.tab==="saved" ?"block":"none";
   };
 });
+
 renderHistory();
 </script>
 </body>
