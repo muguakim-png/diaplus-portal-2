@@ -47,28 +47,6 @@
             margin-right: 10px;
         }
         
-        .cloud-status {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 15px;
-            background: #333;
-            border-radius: 20px;
-            font-size: 14px;
-        }
-        
-        .cloud-status.connected {
-            background: #2e7d32;
-        }
-        
-        .cloud-status.syncing {
-            background: #ff8f00;
-        }
-        
-        .cloud-status.error {
-            background: #c62828;
-        }
-        
         .container {
             width: 100%;
             max-width: 1200px;
@@ -389,32 +367,6 @@
             display: none;
         }
         
-        .cloud-sync-options {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        
-        .cloud-btn {
-            padding: 10px 15px;
-            background: #2196F3;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .cloud-btn.save {
-            background: #4CAF50;
-        }
-        
-        .cloud-btn.load {
-            background: #FF9800;
-        }
-        
         @media (max-width: 768px) {
             .player-controls {
                 flex-wrap: wrap;
@@ -435,10 +387,6 @@
                 margin-bottom: 10px;
             }
             
-            .cloud-sync-options {
-                flex-direction: column;
-            }
-            
             .audio-controls {
                 bottom: 10px;
                 right: 10px;
@@ -457,65 +405,6 @@
             padding: 20px;
             color: #888;
         }
-        
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 100;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .modal-content {
-            background: #333;
-            padding: 20px;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 500px;
-        }
-        
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        
-        .modal-close {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
-        }
-        
-        .cloud-form {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        
-        .cloud-form input {
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            background: #222;
-            color: white;
-        }
-        
-        .cloud-form button {
-            padding: 10px;
-            background: #2196F3;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
     </style>
 </head>
 <body>
@@ -523,10 +412,6 @@
         <div class="logo">
             <i class="fas fa-tv"></i>
             <span>DiaPlus International TV</span>
-        </div>
-        <div class="cloud-status" id="cloud-status">
-            <i class="fas fa-cloud"></i>
-            <span>Cloud: Disconnected</span>
         </div>
     </div>
     
@@ -613,18 +498,6 @@
                 <button id="resume-no">No</button>
             </div>
             
-            <div class="cloud-sync-options">
-                <button class="cloud-btn save" id="save-to-cloud">
-                    <i class="fas fa-cloud-upload-alt"></i> Save to Cloud
-                </button>
-                <button class="cloud-btn load" id="load-from-cloud">
-                    <i class="fas fa-cloud-download-alt"></i> Load from Cloud
-                </button>
-                <button class="cloud-btn" id="manage-cloud">
-                    <i class="fas fa-cog"></i> Cloud Settings
-                </button>
-            </div>
-            
             <div class="tabs">
                 <div class="tab active" data-tab="history">History</div>
                 <div class="tab" data-tab="saved">Saved Links</div>
@@ -648,42 +521,29 @@
         &copy; 2023 DiaPlus International. All rights reserved.
     </div>
 
-    <!-- Cloud Settings Modal -->
-    <div class="modal" id="cloud-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Cloud Storage Settings</h3>
-                <button class="modal-close" id="close-cloud-modal">&times;</button>
-            </div>
-            <div class="cloud-form">
-                <p>Select cloud storage provider:</p>
-                <select id="cloud-provider">
-                    <option value="firebase">Firebase</option>
-                    <option value="aws">AWS S3</option>
-                    <option value="google">Google Drive</option>
-                    <option value="dropbox">Dropbox</option>
-                </select>
-                
-                <div id="firebase-config">
-                    <p>Firebase Configuration:</p>
-                    <input type="text" placeholder="API Key" id="firebase-api-key">
-                    <input type="text" placeholder="Project ID" id="firebase-project-id">
-                    <input type="text" placeholder="Storage Bucket" id="firebase-bucket">
-                </div>
-                
-                <div id="aws-config" style="display: none;">
-                    <p>AWS S3 Configuration:</p>
-                    <input type="text" placeholder="Access Key ID" id="aws-access-key">
-                    <input type="text" placeholder="Secret Access Key" id="aws-secret-key">
-                    <input type="text" placeholder="Bucket Name" id="aws-bucket">
-                </div>
-                
-                <button id="save-cloud-config">Save Configuration</button>
-            </div>
-        </div>
-    </div>
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
 
-    <script>
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+          apiKey: "AIzaSyDin-ueMfhRwZ7EOWrpYRbyhTcvtm-xZ6s",
+          authDomain: "dias-aea74.firebaseapp.com",
+          projectId: "dias-aea74",
+          storageBucket: "dias-aea74.firebasestorage.app",
+          messagingSenderId: "261547908584",
+          appId: "1:261547908584:web:809d448f6b35a1b0f7985d",
+          measurementId: "G-WQ2ZXZX0VV"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+
         document.addEventListener('DOMContentLoaded', function() {
             // Get elements
             const videoPlayer = document.getElementById('video-player');
@@ -707,21 +567,15 @@
             const tabContents = document.querySelectorAll('.tab-content');
             const historyItems = document.getElementById('history-items');
             const savedItems = document.getElementById('saved-items');
-            const cloudStatus = document.getElementById('cloud-status');
-            const saveToCloudBtn = document.getElementById('save-to-cloud');
-            const loadFromCloudBtn = document.getElementById('load-from-cloud');
-            const manageCloudBtn = document.getElementById('manage-cloud');
-            const cloudModal = document.getElementById('cloud-modal');
-            const closeCloudModal = document.getElementById('close-cloud-modal');
-            const cloudProvider = document.getElementById('cloud-provider');
-            const firebaseConfig = document.getElementById('firebase-config');
-            const awsConfig = document.getElementById('aws-config');
-            const saveCloudConfig = document.getElementById('save-cloud-config');
             const toggleEqualizer = document.getElementById('toggle-equalizer');
             const equalizerContainer = document.getElementById('equalizer-container');
             const audioPresets = document.querySelectorAll('.audio-preset');
             const eqBands = document.querySelectorAll('.eq-band');
             
+            // Ensure sound is enabled by default
+            videoPlayer.muted = false;
+            videoPlayer.volume = 1;
+
             // Initialize data
             let history = JSON.parse(localStorage.getItem('videoHistory')) || [];
             let savedLinks = JSON.parse(localStorage.getItem('savedLinks')) || [];
@@ -826,13 +680,6 @@
             function loadData() {
                 updateHistoryDisplay();
                 updateSavedDisplay();
-                
-                // Check if we have cloud configuration
-                const cloudConfig = JSON.parse(localStorage.getItem('cloudConfig'));
-                if (cloudConfig && cloudConfig.configured) {
-                    cloudStatus.classList.add('connected');
-                    cloudStatus.innerHTML = '<i class="fas fa-cloud"></i> Cloud: Connected';
-                }
             }
             
             // Update history display
@@ -998,97 +845,6 @@
                     const videoName = url.split('/').pop() || 'Unknown Video';
                     addToHistory(url, videoName);
                 }
-            }
-            
-            // Save data to cloud (simulated)
-            function saveToCloud() {
-                const cloudConfig = JSON.parse(localStorage.getItem('cloudConfig'));
-                if (!cloudConfig || !cloudConfig.configured) {
-                    alert('Please configure cloud storage first.');
-                    cloudModal.style.display = 'flex';
-                    return;
-                }
-                
-                cloudStatus.classList.remove('connected');
-                cloudStatus.classList.add('syncing');
-                cloudStatus.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> Cloud: Syncing...';
-                
-                // Simulate cloud save
-                setTimeout(() => {
-                    const data = {
-                        history: history,
-                        savedLinks: savedLinks,
-                        timestamp: new Date().toISOString()
-                    };
-                    
-                    // In a real implementation, this would be an API call
-                    localStorage.setItem('cloudBackup', JSON.stringify(data));
-                    
-                    cloudStatus.classList.remove('syncing');
-                    cloudStatus.classList.add('connected');
-                    cloudStatus.innerHTML = '<i class="fas fa-cloud"></i> Cloud: Data Saved';
-                    
-                    alert('Data successfully saved to cloud!');
-                    
-                    // Revert status after 3 seconds
-                    setTimeout(() => {
-                        cloudStatus.innerHTML = '<i class="fas fa-cloud"></i> Cloud: Connected';
-                    }, 3000);
-                }, 1500);
-            }
-            
-            // Load data from cloud (simulated)
-            function loadFromCloud() {
-                const cloudConfig = JSON.parse(localStorage.getItem('cloudConfig'));
-                if (!cloudConfig || !cloudConfig.configured) {
-                    alert('Please configure cloud storage first.');
-                    cloudModal.style.display = 'flex';
-                    return;
-                }
-                
-                cloudStatus.classList.remove('connected');
-                cloudStatus.classList.add('syncing');
-                cloudStatus.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> Cloud: Syncing...';
-                
-                // Simulate cloud load
-                setTimeout(() => {
-                    const cloudData = JSON.parse(localStorage.getItem('cloudBackup'));
-                    
-                    if (cloudData) {
-                        history = cloudData.history || [];
-                        savedLinks = cloudData.savedLinks || [];
-                        
-                        localStorage.setItem('videoHistory', JSON.stringify(history));
-                        localStorage.setItem('savedLinks', JSON.stringify(savedLinks));
-                        
-                        updateHistoryDisplay();
-                        updateSavedDisplay();
-                        
-                        cloudStatus.classList.remove('syncing');
-                        cloudStatus.classList.add('connected');
-                        cloudStatus.innerHTML = '<i class="fas fa-cloud"></i> Cloud: Data Loaded';
-                        
-                        alert('Data successfully loaded from cloud!');
-                        
-                        // Revert status after 3 seconds
-                        setTimeout(() => {
-                            cloudStatus.innerHTML = '<i class="fas fa-cloud"></i> Cloud: Connected';
-                        }, 3000);
-                    } else {
-                        cloudStatus.classList.remove('syncing');
-                        cloudStatus.classList.add('error');
-                        cloudStatus.innerHTML = '<i class="fas fa-cloud"></i> Cloud: No Data Found';
-                        
-                        alert('No cloud data found!');
-                        
-                        // Revert status after 3 seconds
-                        setTimeout(() => {
-                            cloudStatus.classList.remove('error');
-                            cloudStatus.classList.add('connected');
-                            cloudStatus.innerHTML = '<i class="fas fa-cloud"></i> Cloud: Connected';
-                        }, 3000);
-                    }
-                }, 1500);
             }
             
             loadBtn.addEventListener('click', function() {
@@ -1270,50 +1026,6 @@
                         }
                     });
                 });
-            });
-            
-            // Cloud functionality
-            saveToCloudBtn.addEventListener('click', saveToCloud);
-            loadFromCloudBtn.addEventListener('click', loadFromCloud);
-            
-            manageCloudBtn.addEventListener('click', function() {
-                cloudModal.style.display = 'flex';
-            });
-            
-            closeCloudModal.addEventListener('click', function() {
-                cloudModal.style.display = 'none';
-            });
-            
-            cloudProvider.addEventListener('change', function() {
-                if (this.value === 'firebase') {
-                    firebaseConfig.style.display = 'block';
-                    awsConfig.style.display = 'none';
-                } else if (this.value === 'aws') {
-                    firebaseConfig.style.display = 'none';
-                    awsConfig.style.display = 'block';
-                } else {
-                    firebaseConfig.style.display = 'none';
-                    awsConfig.style.display = 'none';
-                }
-            });
-            
-            saveCloudConfig.addEventListener('click', function() {
-                const provider = cloudProvider.value;
-                
-                // Save configuration
-                const cloudConfig = {
-                    provider: provider,
-                    configured: true,
-                    timestamp: new Date().toISOString()
-                };
-                
-                localStorage.setItem('cloudConfig', JSON.stringify(cloudConfig));
-                
-                cloudStatus.classList.add('connected');
-                cloudStatus.innerHTML = '<i class="fas fa-cloud"></i> Cloud: Connected';
-                
-                alert('Cloud configuration saved!');
-                cloudModal.style.display = 'none';
             });
             
             // Audio controls
