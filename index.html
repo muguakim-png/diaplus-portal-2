@@ -3,18 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DiaPlus International – Cloud TV Player</title>
+<title>DiaPlus Cloud TV Player</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 body{background:#111;color:#fff;font-family:sans-serif;padding:20px;text-align:center}
 h1{margin-bottom:20px}
-#video-player{width:90%;max-width:800px;background:#000;border-radius:10px;margin-bottom:15px}
-.controls{margin:10px auto;max-width:800px}
+#player-container{position:relative;width:90%;max-width:900px;margin:auto}
+video{width:100%;background:#000;border-radius:10px}
+.controls{margin:15px auto;max-width:900px}
 #video-url{width:60%;padding:8px;border-radius:5px;border:none;margin-right:5px}
 button{padding:8px 12px;border:none;border-radius:5px;background:#e50914;color:#fff;cursor:pointer}
+select{padding:5px;margin:0 5px;border-radius:5px;border:none;background:#333;color:#fff}
 .tab{display:inline-block;margin:5px;padding:8px 12px;border-radius:5px;background:#333;cursor:pointer}
 .tab.active{background:#e50914}
-.list{max-width:800px;margin:10px auto;text-align:left}
+.list{max-width:900px;margin:10px auto;text-align:left}
 .item{background:#222;padding:8px;margin:4px 0;border-radius:5px;display:flex;justify-content:space-between}
 .item button{background:#444}
 </style>
@@ -23,14 +25,18 @@ button{padding:8px 12px;border:none;border-radius:5px;background:#e50914;color:#
 
 <h1>DiaPlus International TV</h1>
 
-<!-- Video player with sound enabled -->
-<video id="video-player" controls preload="auto">
-  Your browser does not support the video tag.
-</video>
+<div id="player-container">
+  <!-- video element with multiple track support -->
+  <video id="video-player" controls preload="auto" crossorigin="anonymous">
+    Your browser does not support the video tag.
+  </video>
+</div>
 
 <div class="controls">
-  <input type="text" id="video-url" placeholder="Paste video URL here">
+  <input type="text" id="video-url" placeholder="Paste video URL (MP4/MKV/WebM)">
   <button id="load-btn">Load & Play</button>
+  <select id="audio-select"><option value="">Audio Tracks</option></select>
+  <select id="subtitle-select"><option value="">Subtitles</option></select>
 </div>
 
 <div>
@@ -58,7 +64,6 @@ const firebaseConfig = {
   measurementId: "G-WQ2ZXZX0VV"
 };
 /* ========================================== */
-
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 firebase.auth().signInAnonymously();
@@ -66,13 +71,70 @@ firebase.auth().signInAnonymously();
 const player=document.getElementById("video-player"),
       urlInput=document.getElementById("video-url"),
       loadBtn=document.getElementById("load-btn"),
+      audioSel=document.getElementById("audio-select"),
+      subtitleSel=document.getElementById("subtitle-select"),
       historyDiv=document.getElementById("history"),
       savedDiv=document.getElementById("saved");
 
 let history=JSON.parse(localStorage.getItem("videoHistory"))||[];
 let saved=[];
 
-/* ===== Rendering Functions ===== */
+/* ===== Player Functions ===== */
+function play(url){
+  player.src=url;
+  player.muted=false;
+  player.volume=1;
+  player.play(); // plays after user click
+  addHistory(url);
+}
+function addHistory(url){
+  const name=url.split("/").pop()||"Video";
+  history=history.filter(h=>h.url!==url);
+  history.push({url,name,date:new Date().toISOString()});
+  if(history.length>10)history=history.slice(-10);
+  localStorage.setItem("videoHistory",JSON.stringify(history));
+  renderHistory();
+}
+function saveLink(url,name){
+  db.collection("savedLinks").add({url,name,date:new Date().toISOString()});
+  saved.push({url,name});
+  renderSaved();
+  alert("Saved to cloud!");
+}
+
+/* ===== Audio & Subtitle Track Handling ===== */
+function populateTracks(){
+  audioSel.innerHTML="<option value=''>Audio Tracks</option>";
+  subtitleSel.innerHTML="<option value=''>Subtitles</option>";
+  // audioTracks API
+  if(player.audioTracks && player.audioTracks.length){
+    [...player.audioTracks].forEach((track,i)=>{
+      const opt=document.createElement("option");
+      opt.value=i;
+      opt.text=track.label||`Track ${i+1}`;
+      audioSel.appendChild(opt);
+    });
+  }
+  // textTracks API (subtitles/captions)
+  [...player.textTracks].forEach((track,i)=>{
+    const opt=document.createElement("option");
+    opt.value=i;
+    opt.text=track.label||track.language||`Subtitle ${i+1}`;
+    subtitleSel.appendChild(opt);
+  });
+}
+audioSel.onchange=()=>{
+  if(player.audioTracks){
+    [...player.audioTracks].forEach((t,i)=>{t.enabled=(i==audioSel.value);});
+  }
+};
+subtitleSel.onchange=()=>{
+  [...player.textTracks].forEach((t,i)=>{
+    t.mode=(i==subtitleSel.value)?'showing':'disabled';
+  });
+};
+
+/* ===== UI Rendering ===== */
 function renderHistory(){
   if(history.length===0){historyDiv.innerHTML="<p>No history yet</p>";return;}
   historyDiv.innerHTML="";
@@ -99,35 +161,17 @@ function renderSaved(){
   });
 }
 
-/* ===== Player Functions ===== */
-function play(url){
-  player.src = url;
-  player.muted = false;     // Ensure sound is allowed
-  player.volume = 1;        // Full volume
-  player.play();            // Will play with sound after user click
-  addHistory(url);
-}
-function addHistory(url){
-  const name = url.split("/").pop() || "Video";
-  history = history.filter(h => h.url !== url);
-  history.push({url,name,date:new Date().toISOString()});
-  if(history.length>10) history = history.slice(-10);
-  localStorage.setItem("videoHistory",JSON.stringify(history));
-  renderHistory();
-}
-function saveLink(url,name){
-  db.collection("savedLinks").add({url,name,date:new Date().toISOString()});
-  saved.push({url,name});
-  renderSaved();
-  alert("Saved to cloud!");
-}
-
-/* ===== Events ===== */
-loadBtn.onclick = ()=>{ if(urlInput.value) play(urlInput.value); };
+/* ===== Event Wiring ===== */
+loadBtn.onclick=()=>{
+  if(urlInput.value){
+    play(urlInput.value);
+  }
+};
+player.onloadedmetadata=populateTracks;
 
 firebase.auth().onAuthStateChanged(async()=>{
-  const snap = await db.collection("savedLinks").get();
-  saved = snap.docs.map(d=>d.data());
+  const snap=await db.collection("savedLinks").get();
+  saved=snap.docs.map(d=>d.data());
   renderSaved();
 });
 
@@ -144,3 +188,5 @@ renderHistory();
 </script>
 </body>
 </html>
+
+
