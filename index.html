@@ -1,126 +1,238 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Cloudstream Web</title>
-  <style>
-    body {
-      background-color: #121212;
-      color: #fff;
-      font-family: 'Segoe UI', sans-serif;
-      margin: 0;
-    }
-    #app {
-      max-width: 800px;
-      margin: auto;
-      padding: 20px;
-    }
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    button {
-      background-color: #1f80e0;
-      color: white;
-      border: none;
-      padding: 10px;
-      cursor: pointer;
-    }
-    #repo-list button {
-      display: block;
-      margin: 10px 0;
-      padding: 8px;
-      background-color: #333;
-      border: none;
-      color: white;
-      width: 100%;
-      text-align: left;
-    }
-    video {
-      margin-top: 20px;
-      background: black;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DiaPlus Cloud TV Player</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+body{background:#111;color:#fff;font-family:sans-serif;padding:20px;text-align:center}
+.hidden{display:none}
+#login-box{max-width:350px;margin:80px auto;padding:20px;background:#222;border-radius:10px}
+#login-box input{width:90%;margin:8px 0;padding:8px;border:none;border-radius:5px}
+#login-box button{width:95%;padding:10px;background:#e50914;color:#fff;border:none;border-radius:5px;cursor:pointer}
+h1{margin-bottom:20px}
+#player-container{position:relative;width:90%;max-width:900px;margin:auto}
+video{width:100%;background:#000;border-radius:10px}
+.controls{margin:15px auto;max-width:900px}
+#video-url{width:60%;padding:8px;border-radius:5px;border:none;margin-right:5px}
+button{padding:8px 12px;border:none;border-radius:5px;background:#e50914;color:#fff;cursor:pointer}
+select{padding:5px;margin:0 5px;border-radius:5px;border:none;background:#333;color:#fff}
+.tab{display:inline-block;margin:5px;padding:8px 12px;border-radius:5px;background:#333;cursor:pointer}
+.tab.active{background:#e50914}
+.list{max-width:900px;margin:10px auto;text-align:left}
+.item{background:#222;padding:8px;margin:4px 0;border-radius:5px;display:flex;justify-content:space-between;align-items:center}
+.item span{flex:1}
+.item button{background:#444;margin-left:5px}
+</style>
 </head>
 <body>
-  <div id="app">
-    <header>
-      <h1>Cloudstream Web</h1>
-      <button onclick="addRepo()">➕ Add Repository</button>
-    </header>
-    <main>
-      <div id="repo-list"></div>
-      <video id="videoPlayer" controls width="100%" poster="thumbnail.jpg"></video>
-    </main>
-  </div>
 
-  <!-- Firebase SDK -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-analytics.js";
+<!-- Login Screen -->
+<div id="login-box">
+  <h2>Login</h2>
+  <input type="text" id="login-user" placeholder="Username">
+  <input type="password" id="login-pass" placeholder="Password">
+  <button id="login-btn">Login</button>
+  <p id="login-msg" style="color:#f66;"></p>
+</div>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDin-ueMfhRwZ7EOWrpYRbyhTcvtm-xZ6s",
-      authDomain: "dias-aea74.firebaseapp.com",
-      projectId: "dias-aea74",
-      storageBucket: "dias-aea74.appspot.com",
-      messagingSenderId: "261547908584",
-      appId: "1:261547908584:web:809d448f6b35a1b0f7985d",
-      measurementId: "G-WQ2ZXZX0VV"
-    };
+<!-- Main App -->
+<div id="app" class="hidden">
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    getAnalytics(app);
+<h1>DiaPlus International TV</h1>
 
-    async function loadRepos() {
-      const repoList = document.getElementById("repo-list");
-      const querySnapshot = await getDocs(collection(db, "repositories"));
-      repoList.innerHTML = "";
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        const btn = document.createElement("button");
-        btn.textContent = data.name;
-        btn.onclick = () => loadVideo(data.videoUrl);
-        repoList.appendChild(btn);
-      });
-    }
+<div id="player-container">
+  <video id="video-player" controls preload="auto" crossorigin="anonymous">
+    Your browser does not support the video tag.
+  </video>
+</div>
 
-    function loadVideo(url) {
-      const video = document.getElementById("videoPlayer");
-      if (window.hls) {
-        window.hls.destroy();
-        window.hls = null;
-      }
-      if (Hls.isSupported() && url.endsWith(".m3u8")) {
-        const hls = new Hls();
-        hls.loadSource(url);
-        hls.attachMedia(video);
-        hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
-        window.hls = hls;
-      } else {
-        video.src = url;
-        video.load();
-        video.play();
-      }
-    }
+<div class="controls">
+  <input type="text" id="video-url" placeholder="Paste video URL (MP4/MKV/WebM)">
+  <button id="load-btn">Load & Play</button>
+  <select id="audio-select"><option value="">Audio Tracks</option></select>
+  <select id="subtitle-select"><option value="">Subtitles</option></select>
+</div>
 
-    async function addRepo() {
-      const name = prompt("Repository name:");
-      const videoUrl = prompt("Video URL (.mp4 or .m3u8):");
-      if (name && videoUrl) {
-        await addDoc(collection(db, "repositories"), { name, videoUrl });
-        loadRepos();
-      }
-    }
+<div>
+  <span class="tab active" data-tab="history">History</span>
+  <span class="tab" data-tab="saved">Saved Links</span>
+</div>
 
-    window.onload = loadRepos;
-  </script>
+<div id="history" class="list"></div>
+<div id="saved" class="list" style="display:none"></div>
 
-  <!-- HLS.js -->
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+</div><!-- /app -->
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
+<script>
+/* ====== Simple Front-End Login ====== */
+const LOGIN_USER="Mk254ke", LOGIN_PASS="Mk@199814";
+const loginBox=document.getElementById("login-box"),
+      appBox=document.getElementById("app"),
+      loginBtn=document.getElementById("login-btn"),
+      loginMsg=document.getElementById("login-msg");
+
+loginBtn.onclick=()=>{
+  const u=document.getElementById("login-user").value.trim(),
+        p=document.getElementById("login-pass").value;
+  if(u===LOGIN_USER && p===LOGIN_PASS){
+    localStorage.setItem("dia_logged","true");
+    loginBox.classList.add("hidden");
+    appBox.classList.remove("hidden");
+  }else{
+    loginMsg.textContent="Invalid credentials";
+  }
+};
+if(localStorage.getItem("dia_logged")==="true"){
+  loginBox.classList.add("hidden");
+  appBox.classList.remove("hidden");
+}
+
+/* ====== Firebase Config ====== */
+const firebaseConfig = {
+  apiKey: "AIzaSyDin-ueMfhRwZ7EOWrpYRbyhTcvtm-xZ6s",
+  authDomain: "dias-aea74.firebaseapp.com",
+  projectId: "dias-aea74",
+  storageBucket: "dias-aea74.firebasestorage.app",
+  messagingSenderId: "261547908584",
+  appId: "1:261547908584:web:809d448f6b35a1b0f7985d",
+  measurementId: "G-WQ2ZXZX0VV"
+};
+firebase.initializeApp(firebaseConfig);
+const db=firebase.firestore();
+firebase.auth().signInAnonymously();
+
+/* ====== Elements ====== */
+const player=document.getElementById("video-player"),
+      urlInput=document.getElementById("video-url"),
+      loadBtn=document.getElementById("load-btn"),
+      audioSel=document.getElementById("audio-select"),
+      subtitleSel=document.getElementById("subtitle-select"),
+      historyDiv=document.getElementById("history"),
+      savedDiv=document.getElementById("saved");
+
+let history=JSON.parse(localStorage.getItem("videoHistory"))||[];
+let saved=[];
+
+/* ====== Player ====== */
+function play(url){
+  player.src=url;
+  player.muted=false;
+  player.volume=1;
+  player.play();
+  addHistory(url);
+}
+function addHistory(url){
+  const name=url.split("/").pop()||"Video";
+  history=history.filter(h=>h.url!==url);
+  history.push({url,name,date:new Date().toISOString()});
+  if(history.length>10)history=history.slice(-10);
+  localStorage.setItem("videoHistory",JSON.stringify(history));
+  renderHistory();
+}
+function saveLink(url,name){
+  db.collection("savedLinks").add({url,name,date:new Date().toISOString()});
+  saved.push({url,name});
+  renderSaved();
+}
+function deleteHistory(index){
+  history.splice(index,1);
+  localStorage.setItem("videoHistory",JSON.stringify(history));
+  renderHistory();
+}
+async function deleteSaved(index){
+  const item=saved[index];
+  const snap=await db.collection("savedLinks").where("url","==",item.url).get();
+  snap.forEach(doc=>doc.ref.delete());
+  saved.splice(index,1);
+  renderSaved();
+}
+
+/* ====== Tracks ====== */
+function populateTracks(){
+  audioSel.innerHTML="<option value=''>Audio Tracks</option>";
+  subtitleSel.innerHTML="<option value=''>Subtitles</option>";
+  if(player.audioTracks){
+    [...player.audioTracks].forEach((track,i)=>{
+      const opt=document.createElement("option");
+      opt.value=i;
+      opt.text=track.label||`Track ${i+1}`;
+      audioSel.appendChild(opt);
+    });
+  }
+  [...player.textTracks].forEach((track,i)=>{
+    const opt=document.createElement("option");
+    opt.value=i;
+    opt.text=track.label||track.language||`Subtitle ${i+1}`;
+    subtitleSel.appendChild(opt);
+  });
+}
+audioSel.onchange=()=>{
+  if(player.audioTracks){
+    [...player.audioTracks].forEach((t,i)=>{t.enabled=(i==audioSel.value);});
+  }
+};
+subtitleSel.onchange=()=>{
+  [...player.textTracks].forEach((t,i)=>{
+    t.mode=(i==subtitleSel.value)?'showing':'disabled';
+  });
+};
+
+/* ====== Render UI ====== */
+function renderHistory(){
+  if(history.length===0){historyDiv.innerHTML="<p>No history yet</p>";return;}
+  historyDiv.innerHTML="";
+  history.slice().reverse().forEach((item,i)=>{
+    const idx=history.length-1-i;
+    const div=document.createElement("div");
+    div.className="item";
+    div.innerHTML=`<span>${item.name}</span>
+      <span>
+        <button onclick="play('${item.url}')">▶</button>
+        <button onclick="saveLink('${item.url}','${item.name}')">★</button>
+        <button onclick="deleteHistory(${idx})">🗑</button>
+      </span>`;
+    historyDiv.appendChild(div);
+  });
+}
+function renderSaved(){
+  if(saved.length===0){savedDiv.innerHTML="<p>No saved links yet</p>";return;}
+  savedDiv.innerHTML="";
+  saved.forEach((item,i)=>{
+    const div=document.createElement("div");
+    div.className="item";
+    div.innerHTML=`<span>${item.name}</span>
+      <span>
+        <button onclick="play('${item.url}')">▶</button>
+        <button onclick="deleteSaved(${i})">🗑</button>
+      </span>`;
+    savedDiv.appendChild(div);
+  });
+}
+
+/* ====== Events ====== */
+loadBtn.onclick=()=>{ if(urlInput.value) play(urlInput.value); };
+player.onloadedmetadata=populateTracks;
+firebase.auth().onAuthStateChanged(async()=>{
+  const snap=await db.collection("savedLinks").get();
+  saved=snap.docs.map(d=>d.data());
+  renderSaved();
+});
+document.querySelectorAll(".tab").forEach(t=>{
+  t.onclick=()=>{
+    document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+    t.classList.add("active");
+    historyDiv.style.display = t.dataset.tab==="history"?"block":"none";
+    savedDiv.style.display   = t.dataset.tab==="saved" ?"block":"none";
+  };
+});
+renderHistory();
+</script>
 </body>
 </html>
