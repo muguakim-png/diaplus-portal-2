@@ -1,238 +1,700 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DiaPlus Cloud TV Player</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>
-body{background:#111;color:#fff;font-family:sans-serif;padding:20px;text-align:center}
-.hidden{display:none}
-#login-box{max-width:350px;margin:80px auto;padding:20px;background:#222;border-radius:10px}
-#login-box input{width:90%;margin:8px 0;padding:8px;border:none;border-radius:5px}
-#login-box button{width:95%;padding:10px;background:#e50914;color:#fff;border:none;border-radius:5px;cursor:pointer}
-h1{margin-bottom:20px}
-#player-container{position:relative;width:90%;max-width:900px;margin:auto}
-video{width:100%;background:#000;border-radius:10px}
-.controls{margin:15px auto;max-width:900px}
-#video-url{width:60%;padding:8px;border-radius:5px;border:none;margin-right:5px}
-button{padding:8px 12px;border:none;border-radius:5px;background:#e50914;color:#fff;cursor:pointer}
-select{padding:5px;margin:0 5px;border-radius:5px;border:none;background:#333;color:#fff}
-.tab{display:inline-block;margin:5px;padding:8px 12px;border-radius:5px;background:#333;cursor:pointer}
-.tab.active{background:#e50914}
-.list{max-width:900px;margin:10px auto;text-align:left}
-.item{background:#222;padding:8px;margin:4px 0;border-radius:5px;display:flex;justify-content:space-between;align-items:center}
-.item span{flex:1}
-.item button{background:#444;margin-left:5px}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UHD Movies Video Player</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .tagline {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .player-section {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+        
+        .video-container {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+            margin-bottom: 20px;
+            background: #000;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        #video-player {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            border-radius: 10px;
+        }
+        
+        .player-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        button {
+            padding: 12px 20px;
+            background: #ff5722;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        button:hover {
+            background: #ff7043;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .volume-control, .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 15px;
+            border-radius: 8px;
+            flex: 1;
+        }
+        
+        input[type="range"] {
+            flex: 1;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            outline: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ff5722;
+            cursor: pointer;
+        }
+        
+        .progress-container {
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            margin-top: 15px;
+            cursor: pointer;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: #ff5722;
+            border-radius: 5px;
+            width: 0%;
+        }
+        
+        .time-display {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .content-section {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+        
+        h2 {
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .search-box {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        
+        .search-box input {
+            flex: 1;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 8px 0 0 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            outline: none;
+        }
+        
+        .search-box button {
+            border-radius: 0 8px 8px 0;
+            min-width: auto;
+        }
+        
+        .categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .category {
+            padding: 8px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .category:hover, .category.active {
+            background: #ff5722;
+        }
+        
+        .video-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        
+        .video-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .video-item:hover {
+            transform: scale(1.05);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .video-thumb {
+            width: 100%;
+            height: 120px;
+            background: #3498db;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            position: relative;
+        }
+        
+        .video-duration {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+        }
+        
+        .video-info {
+            padding: 10px;
+        }
+        
+        .video-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .video-meta {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .status {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+        
+        .loading {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid #ff5722;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            opacity: 0.8;
+        }
+        
+        .firebase-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(255, 152, 0, 0.2);
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-film"></i> UHD Movies Video Player</h1>
+            <p class="tagline">Stream high-quality content from UHDMovies with Firebase integration</p>
+        </header>
+        
+        <div class="main-content">
+            <div class="player-section">
+                <h2>Now Playing</h2>
+                <div class="video-container">
+                    <video id="video-player">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                
+                <div class="progress-container" id="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+                
+                <div class="time-display">
+                    <span id="current-time">0:00</span>
+                    <span id="duration">0:00</span>
+                </div>
+                
+                <div class="player-controls">
+                    <button id="play-btn"><i class="fas fa-play"></i> Play</button>
+                    <button id="pause-btn"><i class="fas fa-pause"></i> Pause</button>
+                    <button id="mute-btn"><i class="fas fa-volume-up"></i> Mute</button>
+                    <button id="fullscreen-btn"><i class="fas fa-expand"></i> Fullscreen</button>
+                </div>
+                
+                <div class="control-group">
+                    <div class="volume-control">
+                        <i class="fas fa-volume-up"></i>
+                        <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="1">
+                    </div>
+                    
+                    <div class="speed-control">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <select id="speed-select">
+                            <option value="0.5">0.5x</option>
+                            <option value="0.75">0.75x</option>
+                            <option value="1" selected>1x</option>
+                            <option value="1.25">1.25x</option>
+                            <option value="1.5">1.5x</option>
+                            <option value="2">2x</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="status">
+                    <p id="player-status">Ready to play video</p>
+                </div>
+            </div>
+            
+            <div class="content-section">
+                <h2>UHD Movies Library</h2>
+                
+                <div class="search-box">
+                    <input type="text" id="search-input" placeholder="Search for movies...">
+                    <button id="search-btn"><i class="fas fa-search"></i></button>
+                </div>
+                
+                <div class="categories">
+                    <div class="category active">All</div>
+                    <div class="category">Action</div>
+                    <div class="category">Comedy</div>
+                    <div class="category">Drama</div>
+                    <div class="category">Sci-Fi</div>
+                    <div class="category">Horror</div>
+                </div>
+                
+                <div class="loading">
+                    <div class="spinner"></div>
+                </div>
+                <div class="video-list" id="video-list">
+                    <!-- Video items will be populated here -->
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>UHD Movies Video Player &copy; 2023 | Powered by Firebase</p>
+            <div class="firebase-badge">
+                <i class="fas fa-database"></i>
+                <span>Firebase Integrated Cloud Storage</span>
+            </div>
+        </footer>
+    </div>
 
-<!-- Login Screen -->
-<div id="login-box">
-  <h2>Login</h2>
-  <input type="text" id="login-user" placeholder="Username">
-  <input type="password" id="login-pass" placeholder="Password">
-  <button id="login-btn">Login</button>
-  <p id="login-msg" style="color:#f66;"></p>
-</div>
-
-<!-- Main App -->
-<div id="app" class="hidden">
-
-<h1>DiaPlus International TV</h1>
-
-<div id="player-container">
-  <video id="video-player" controls preload="auto" crossorigin="anonymous">
-    Your browser does not support the video tag.
-  </video>
-</div>
-
-<div class="controls">
-  <input type="text" id="video-url" placeholder="Paste video URL (MP4/MKV/WebM)">
-  <button id="load-btn">Load & Play</button>
-  <select id="audio-select"><option value="">Audio Tracks</option></select>
-  <select id="subtitle-select"><option value="">Subtitles</option></select>
-</div>
-
-<div>
-  <span class="tab active" data-tab="history">History</span>
-  <span class="tab" data-tab="saved">Saved Links</span>
-</div>
-
-<div id="history" class="list"></div>
-<div id="saved" class="list" style="display:none"></div>
-
-</div><!-- /app -->
-
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-
-<script>
-/* ====== Simple Front-End Login ====== */
-const LOGIN_USER="Mk254ke", LOGIN_PASS="Mk@199814";
-const loginBox=document.getElementById("login-box"),
-      appBox=document.getElementById("app"),
-      loginBtn=document.getElementById("login-btn"),
-      loginMsg=document.getElementById("login-msg");
-
-loginBtn.onclick=()=>{
-  const u=document.getElementById("login-user").value.trim(),
-        p=document.getElementById("login-pass").value;
-  if(u===LOGIN_USER && p===LOGIN_PASS){
-    localStorage.setItem("dia_logged","true");
-    loginBox.classList.add("hidden");
-    appBox.classList.remove("hidden");
-  }else{
-    loginMsg.textContent="Invalid credentials";
-  }
-};
-if(localStorage.getItem("dia_logged")==="true"){
-  loginBox.classList.add("hidden");
-  appBox.classList.remove("hidden");
-}
-
-/* ====== Firebase Config ====== */
-const firebaseConfig = {
-  apiKey: "AIzaSyDin-ueMfhRwZ7EOWrpYRbyhTcvtm-xZ6s",
-  authDomain: "dias-aea74.firebaseapp.com",
-  projectId: "dias-aea74",
-  storageBucket: "dias-aea74.firebasestorage.app",
-  messagingSenderId: "261547908584",
-  appId: "1:261547908584:web:809d448f6b35a1b0f7985d",
-  measurementId: "G-WQ2ZXZX0VV"
-};
-firebase.initializeApp(firebaseConfig);
-const db=firebase.firestore();
-firebase.auth().signInAnonymously();
-
-/* ====== Elements ====== */
-const player=document.getElementById("video-player"),
-      urlInput=document.getElementById("video-url"),
-      loadBtn=document.getElementById("load-btn"),
-      audioSel=document.getElementById("audio-select"),
-      subtitleSel=document.getElementById("subtitle-select"),
-      historyDiv=document.getElementById("history"),
-      savedDiv=document.getElementById("saved");
-
-let history=JSON.parse(localStorage.getItem("videoHistory"))||[];
-let saved=[];
-
-/* ====== Player ====== */
-function play(url){
-  player.src=url;
-  player.muted=false;
-  player.volume=1;
-  player.play();
-  addHistory(url);
-}
-function addHistory(url){
-  const name=url.split("/").pop()||"Video";
-  history=history.filter(h=>h.url!==url);
-  history.push({url,name,date:new Date().toISOString()});
-  if(history.length>10)history=history.slice(-10);
-  localStorage.setItem("videoHistory",JSON.stringify(history));
-  renderHistory();
-}
-function saveLink(url,name){
-  db.collection("savedLinks").add({url,name,date:new Date().toISOString()});
-  saved.push({url,name});
-  renderSaved();
-}
-function deleteHistory(index){
-  history.splice(index,1);
-  localStorage.setItem("videoHistory",JSON.stringify(history));
-  renderHistory();
-}
-async function deleteSaved(index){
-  const item=saved[index];
-  const snap=await db.collection("savedLinks").where("url","==",item.url).get();
-  snap.forEach(doc=>doc.ref.delete());
-  saved.splice(index,1);
-  renderSaved();
-}
-
-/* ====== Tracks ====== */
-function populateTracks(){
-  audioSel.innerHTML="<option value=''>Audio Tracks</option>";
-  subtitleSel.innerHTML="<option value=''>Subtitles</option>";
-  if(player.audioTracks){
-    [...player.audioTracks].forEach((track,i)=>{
-      const opt=document.createElement("option");
-      opt.value=i;
-      opt.text=track.label||`Track ${i+1}`;
-      audioSel.appendChild(opt);
-    });
-  }
-  [...player.textTracks].forEach((track,i)=>{
-    const opt=document.createElement("option");
-    opt.value=i;
-    opt.text=track.label||track.language||`Subtitle ${i+1}`;
-    subtitleSel.appendChild(opt);
-  });
-}
-audioSel.onchange=()=>{
-  if(player.audioTracks){
-    [...player.audioTracks].forEach((t,i)=>{t.enabled=(i==audioSel.value);});
-  }
-};
-subtitleSel.onchange=()=>{
-  [...player.textTracks].forEach((t,i)=>{
-    t.mode=(i==subtitleSel.value)?'showing':'disabled';
-  });
-};
-
-/* ====== Render UI ====== */
-function renderHistory(){
-  if(history.length===0){historyDiv.innerHTML="<p>No history yet</p>";return;}
-  historyDiv.innerHTML="";
-  history.slice().reverse().forEach((item,i)=>{
-    const idx=history.length-1-i;
-    const div=document.createElement("div");
-    div.className="item";
-    div.innerHTML=`<span>${item.name}</span>
-      <span>
-        <button onclick="play('${item.url}')">▶</button>
-        <button onclick="saveLink('${item.url}','${item.name}')">★</button>
-        <button onclick="deleteHistory(${idx})">🗑</button>
-      </span>`;
-    historyDiv.appendChild(div);
-  });
-}
-function renderSaved(){
-  if(saved.length===0){savedDiv.innerHTML="<p>No saved links yet</p>";return;}
-  savedDiv.innerHTML="";
-  saved.forEach((item,i)=>{
-    const div=document.createElement("div");
-    div.className="item";
-    div.innerHTML=`<span>${item.name}</span>
-      <span>
-        <button onclick="play('${item.url}')">▶</button>
-        <button onclick="deleteSaved(${i})">🗑</button>
-      </span>`;
-    savedDiv.appendChild(div);
-  });
-}
-
-/* ====== Events ====== */
-loadBtn.onclick=()=>{ if(urlInput.value) play(urlInput.value); };
-player.onloadedmetadata=populateTracks;
-firebase.auth().onAuthStateChanged(async()=>{
-  const snap=await db.collection("savedLinks").get();
-  saved=snap.docs.map(d=>d.data());
-  renderSaved();
-});
-document.querySelectorAll(".tab").forEach(t=>{
-  t.onclick=()=>{
-    document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
-    t.classList.add("active");
-    historyDiv.style.display = t.dataset.tab==="history"?"block":"none";
-    savedDiv.style.display   = t.dataset.tab==="saved" ?"block":"none";
-  };
-});
-renderHistory();
-</script>
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDin-ueMfhRwZ7EOWrpYRbyhTcvtm-xZ6s",
+            authDomain: "dias-aea74.firebaseapp.com",
+            projectId: "dias-aea74",
+            storageBucket: "dias-aea74.firebasestorage.app",
+            messagingSenderId: "261547908584",
+            appId: "1:261547908584:web:809d448f6b35a1b0f7985d",
+            measurementId: "G-WQ2ZXZX0VV"
+        };
+        
+        // In a real application, you would initialize Firebase here
+        // For this example, we'll simulate the functionality
+        
+        // DOM elements
+        const videoPlayer = document.getElementById('video-player');
+        const playBtn = document.getElementById('play-btn');
+        const pauseBtn = document.getElementById('pause-btn');
+        const muteBtn = document.getElementById('mute-btn');
+        const fullscreenBtn = document.getElementById('fullscreen-btn');
+        const volumeSlider = document.getElementById('volume-slider');
+        const speedSelect = document.getElementById('speed-select');
+        const progressBar = document.getElementById('progress-bar');
+        const progressContainer = document.getElementById('progress-container');
+        const currentTimeEl = document.getElementById('current-time');
+        const durationEl = document.getElementById('duration');
+        const playerStatus = document.getElementById('player-status');
+        const videoList = document.getElementById('video-list');
+        const searchInput = document.getElementById('search-input');
+        const searchBtn = document.getElementById('search-btn');
+        const categories = document.querySelectorAll('.category');
+        
+        // Mock video data (in a real app, this would come from UHDMovies and Firebase)
+        const videoSources = [
+            {
+                title: "The Midnight Adventure",
+                duration: "2h 15m",
+                url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+                thumb: "🌙",
+                category: "Adventure",
+                quality: "4K",
+                size: "4.2GB"
+            },
+            {
+                title: "Cosmic Journey",
+                duration: "1h 48m",
+                url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+                thumb: "🚀",
+                category: "Sci-Fi",
+                quality: "1080p",
+                size: "2.8GB"
+            },
+            {
+                title: "Laugh Out Loud",
+                duration: "1h 35m",
+                url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+                thumb: "😂",
+                category: "Comedy",
+                quality: "4K",
+                size: "3.5GB"
+            },
+            {
+                title: "Dark Shadows",
+                duration: "2h 05m",
+                url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+                thumb: "🦇",
+                category: "Horror",
+                quality: "1080p",
+                size: "2.9GB"
+            },
+            {
+                title: "The Last Stand",
+                duration: "2h 22m",
+                url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
+                thumb: "💥",
+                category: "Action",
+                quality: "4K",
+                size: "5.1GB"
+            },
+            {
+                title: "Emotional Strings",
+                duration: "1h 52m",
+                url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
+                thumb: "🎻",
+                category: "Drama",
+                quality: "1080p",
+                size: "3.2GB"
+            }
+        ];
+        
+        // Initialize video player
+        function initPlayer() {
+            // Set initial volume
+            videoPlayer.volume = volumeSlider.value;
+            
+            // Event listeners for buttons
+            playBtn.addEventListener('click', () => {
+                videoPlayer.play();
+                playerStatus.textContent = "Playing...";
+                playBtn.innerHTML = '<i class="fas fa-play"></i> Playing';
+            });
+            
+            pauseBtn.addEventListener('click', () => {
+                videoPlayer.pause();
+                playerStatus.textContent = "Paused";
+                playBtn.innerHTML = '<i class="fas fa-play"></i> Play';
+            });
+            
+            muteBtn.addEventListener('click', () => {
+                videoPlayer.muted = !videoPlayer.muted;
+                muteBtn.innerHTML = videoPlayer.muted ? 
+                    '<i class="fas fa-volume-mute"></i> Unmute' : 
+                    '<i class="fas fa-volume-up"></i> Mute';
+                playerStatus.textContent = videoPlayer.muted ? "Sound muted" : "Sound unmuted";
+            });
+            
+            fullscreenBtn.addEventListener('click', () => {
+                if (videoPlayer.requestFullscreen) {
+                    videoPlayer.requestFullscreen();
+                } else if (videoPlayer.webkitRequestFullscreen) {
+                    videoPlayer.webkitRequestFullscreen();
+                } else if (videoPlayer.msRequestFullscreen) {
+                    videoPlayer.msRequestFullscreen();
+                }
+            });
+            
+            volumeSlider.addEventListener('input', () => {
+                videoPlayer.volume = volumeSlider.value;
+                playerStatus.textContent = `Volume set to ${Math.round(volumeSlider.value * 100)}%`;
+            });
+            
+            speedSelect.addEventListener('change', () => {
+                videoPlayer.playbackRate = parseFloat(speedSelect.value);
+                playerStatus.textContent = `Playback speed: ${speedSelect.value}x`;
+            });
+            
+            // Progress bar
+            videoPlayer.addEventListener('timeupdate', () => {
+                const percent = (videoPlayer.currentTime / videoPlayer.duration) * 100;
+                progressBar.style.width = `${percent}%`;
+                currentTimeEl.textContent = formatTime(videoPlayer.currentTime);
+            });
+            
+            progressContainer.addEventListener('click', (e) => {
+                const pos = (e.pageX - progressContainer.offsetLeft) / progressContainer.offsetWidth;
+                videoPlayer.currentTime = pos * videoPlayer.duration;
+            });
+            
+            // Video player events
+            videoPlayer.addEventListener('loadedmetadata', () => {
+                durationEl.textContent = formatTime(videoPlayer.duration);
+            });
+            
+            videoPlayer.addEventListener('loadeddata', () => {
+                playerStatus.textContent = "Video loaded successfully";
+                document.querySelector('.loading').style.display = 'none';
+            });
+            
+            videoPlayer.addEventListener('error', () => {
+                playerStatus.textContent = "Error loading video";
+            });
+            
+            // Load the first video by default
+            if (videoSources.length > 0) {
+                loadVideo(videoSources[0]);
+            }
+        }
+        
+        // Format time in minutes and seconds
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+        
+        // Load a video into the player
+        function loadVideo(video) {
+            videoPlayer.src = video.url;
+            videoPlayer.load();
+            playerStatus.textContent = `Loading: ${video.title}`;
+            document.querySelector('h2').innerHTML = `Now Playing: <span style="color: #ff5722">${video.title}</span>`;
+        }
+        
+        // Populate video list
+        function populateVideoList(videos = videoSources) {
+            videoList.innerHTML = '';
+            
+            videos.forEach(video => {
+                const videoItem = document.createElement('div');
+                videoItem.className = 'video-item';
+                videoItem.innerHTML = `
+                    <div class="video-thumb">
+                        ${video.thumb}
+                        <div class="video-duration">${video.duration}</div>
+                    </div>
+                    <div class="video-info">
+                        <div class="video-title">${video.title}</div>
+                        <div class="video-meta">
+                            <span>${video.quality}</span>
+                            <span>${video.category}</span>
+                        </div>
+                    </div>
+                `;
+                
+                videoItem.addEventListener('click', () => {
+                    document.querySelector('.loading').style.display = 'flex';
+                    loadVideo(video);
+                    // Simulate loading time
+                    setTimeout(() => {
+                        videoPlayer.play();
+                        playBtn.innerHTML = '<i class="fas fa-play"></i> Playing';
+                    }, 1000);
+                });
+                
+                videoList.appendChild(videoItem);
+            });
+            
+            // Hide loading spinner
+            document.querySelector('.loading').style.display = 'none';
+        }
+        
+        // Initialize the application
+        function initApp() {
+            initPlayer();
+            populateVideoList();
+            
+            // Add event listeners for search and categories
+            searchBtn.addEventListener('click', () => {
+                const searchTerm = searchInput.value.toLowerCase();
+                if (searchTerm) {
+                    const filteredVideos = videoSources.filter(video => 
+                        video.title.toLowerCase().includes(searchTerm) ||
+                        video.category.toLowerCase().includes(searchTerm)
+                    );
+                    populateVideoList(filteredVideos);
+                    playerStatus.textContent = `Found ${filteredVideos.length} videos for "${searchTerm}"`;
+                }
+            });
+            
+            categories.forEach(category => {
+                category.addEventListener('click', () => {
+                    categories.forEach(cat => cat.classList.remove('active'));
+                    category.classList.add('active');
+                    
+                    const categoryName = category.textContent;
+                    if (categoryName === 'All') {
+                        populateVideoList();
+                        playerStatus.textContent = "Showing all videos";
+                    } else {
+                        const filteredVideos = videoSources.filter(video => 
+                            video.category === categoryName
+                        );
+                        populateVideoList(filteredVideos);
+                        playerStatus.textContent = `Showing ${filteredVideos.length} ${categoryName} videos`;
+                    }
+                });
+            });
+        }
+        
+        // Start the app when the page is loaded
+        window.addEventListener('DOMContentLoaded', initApp);
+    </script>
 </body>
 </html>
