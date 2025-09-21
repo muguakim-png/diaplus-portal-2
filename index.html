@@ -1,192 +1,1370 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DiaPlus Cloud TV Player</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>
-body{background:#111;color:#fff;font-family:sans-serif;padding:20px;text-align:center}
-h1{margin-bottom:20px}
-#player-container{position:relative;width:90%;max-width:900px;margin:auto}
-video{width:100%;background:#000;border-radius:10px}
-.controls{margin:15px auto;max-width:900px}
-#video-url{width:60%;padding:8px;border-radius:5px;border:none;margin-right:5px}
-button{padding:8px 12px;border:none;border-radius:5px;background:#e50914;color:#fff;cursor:pointer}
-select{padding:5px;margin:0 5px;border-radius:5px;border:none;background:#333;color:#fff}
-.tab{display:inline-block;margin:5px;padding:8px 12px;border-radius:5px;background:#333;cursor:pointer}
-.tab.active{background:#e50914}
-.list{max-width:900px;margin:10px auto;text-align:left}
-.item{background:#222;padding:8px;margin:4px 0;border-radius:5px;display:flex;justify-content:space-between}
-.item button{background:#444}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DiaPlus International - Cloud TV Video Player</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: white;
+        }
+        
+        .header {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo img {
+            height: 40px;
+            margin-right: 10px;
+        }
+        
+        .cloud-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 15px;
+            background: #333;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        
+        .cloud-status.connected {
+            background: #2e7d32;
+        }
+        
+        .cloud-status.syncing {
+            background: #ff8f00;
+        }
+        
+        .cloud-status.error {
+            background: #c62828;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            background-color: rgba(0, 0, 0, 0.8);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .tv-frame {
+            position: relative;
+            padding: 20px;
+            background: #222;
+            border-radius: 15px 15px 0 0;
+        }
+        
+        .tv-screen {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+            background-color: #000;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        #video-player {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            z-index: 2;
+        }
+        
+        .audio-controls {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 4;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 10px;
+        }
+        
+        .audio-presets {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .audio-preset {
+            padding: 5px 10px;
+            background: #444;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .audio-preset.active {
+            background: #e50914;
+        }
+        
+        .equalizer-container {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            margin-top: 10px;
+        }
+        
+        .equalizer-band {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .equalizer-band label {
+            width: 30px;
+            font-size: 12px;
+        }
+        
+        .equalizer-band input {
+            flex: 1;
+        }
+        
+        .sponsor-overlay {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            z-index: 3;
+            display: none;
+        }
+        
+        .tv-stand {
+            display: flex;
+            justify-content: center;
+        }
+        
+        .stand {
+            width: 100px;
+            height: 50px;
+            background: linear-gradient(to bottom, #444, #222);
+            border-radius: 0 0 10px 10px;
+        }
+        
+        .base {
+            width: 300px;
+            height: 20px;
+            background: linear-gradient(to bottom, #555, #333);
+            border-radius: 5px;
+            margin-top: -5px;
+        }
+        
+        .controls {
+            padding: 20px;
+            background: #333;
+            border-radius: 0 0 15px 15px;
+        }
+        
+        .url-input {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        
+        #video-url {
+            flex: 1;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 5px 0 0 5px;
+            font-size: 16px;
+            background: #222;
+            color: white;
+        }
+        
+        #load-btn {
+            padding: 12px 20px;
+            background: #e50914;
+            color: white;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        
+        #load-btn:hover {
+            background: #ff0a16;
+        }
+        
+        .player-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .control-btn {
+            background: #444;
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background 0.3s;
+        }
+        
+        .control-btn:hover {
+            background: #555;
+        }
+        
+        .control-btn i {
+            font-size: 18px;
+        }
+        
+        .progress-container {
+            flex: 1;
+            height: 10px;
+            background: #222;
+            border-radius: 5px;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        #progress-bar {
+            height: 100%;
+            background: #e50914;
+            border-radius: 5px;
+            width: 0%;
+        }
+        
+        .volume-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        #volume {
+            width: 80px;
+            cursor: pointer;
+        }
+        
+        .time-display {
+            color: white;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+        
+        .power-light {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            width: 15px;
+            height: 15px;
+            background: #e50914;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #e50914;
+        }
+        
+        .tv-brand {
+            position: absolute;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 15px;
+            background: #222;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            background: #333;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .tab.active {
+            background: #e50914;
+            font-weight: bold;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 15px;
+            background: #222;
+            border-radius: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .history-item, .saved-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: #333;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            color: white;
+        }
+        
+        .history-item:hover, .saved-item:hover {
+            background: #444;
+        }
+        
+        .item-actions {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .item-btn {
+            background: #555;
+            border: none;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .resume-option {
+            margin-top: 15px;
+            padding: 10px;
+            background: #4CAF50;
+            border-radius: 5px;
+            text-align: center;
+            cursor: pointer;
+            display: none;
+        }
+        
+        .cloud-sync-options {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .cloud-btn {
+            padding: 10px 15px;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .cloud-btn.save {
+            background: #4CAF50;
+        }
+        
+        .cloud-btn.load {
+            background: #FF9800;
+        }
+        
+        @media (max-width: 768px) {
+            .player-controls {
+                flex-wrap: wrap;
+            }
+            
+            .progress-container {
+                order: 1;
+                width: 100%;
+                margin-top: 10px;
+            }
+            
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .logo {
+                margin-bottom: 10px;
+            }
+            
+            .cloud-sync-options {
+                flex-direction: column;
+            }
+            
+            .audio-controls {
+                bottom: 10px;
+                right: 10px;
+            }
+        }
+        
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            color: white;
+            font-size: 14px;
+        }
+        
+        .empty-message {
+            text-align: center;
+            padding: 20px;
+            color: #888;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: #333;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        
+        .cloud-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .cloud-form input {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background: #222;
+            color: white;
+        }
+        
+        .cloud-form button {
+            padding: 10px;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
+    <div class="header">
+        <div class="logo">
+            <i class="fas fa-tv"></i>
+            <span>DiaPlus International TV</span>
+        </div>
+        <div class="cloud-status" id="cloud-status">
+            <i class="fas fa-cloud"></i>
+            <span>Cloud: Disconnected</span>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="tv-frame">
+            <div class="power-light"></div>
+            <div class="tv-screen">
+                <video id="video-player">
+                    Your browser does not support the video tag.
+                </video>
+                <div class="audio-controls">
+                    <button id="toggle-equalizer"><i class="fas fa-sliders-h"></i> EQ</button>
+                    <div class="audio-presets">
+                        <button class="audio-preset" data-preset="normal">Normal</button>
+                        <button class="audio-preset" data-preset="bass">Bass</button>
+                        <button class="audio-preset" data-preset="treble">Treble</button>
+                    </div>
+                    <div class="equalizer-container" id="equalizer-container">
+                        <div class="equalizer-band">
+                            <label>60Hz</label>
+                            <input type="range" min="-12" max="12" value="0" class="eq-band" data-band="0">
+                        </div>
+                        <div class="equalizer-band">
+                            <label>230Hz</label>
+                            <input type="range" min="-12" max="12" value="0" class="eq-band" data-band="1">
+                        </div>
+                        <div class="equalizer-band">
+                            <label>910Hz</label>
+                            <input type="range" min="-12" max="12" value="0" class="eq-band" data-band="2">
+                        </div>
+                        <div class="equalizer-band">
+                            <label>3.6kHz</label>
+                            <input type="range" min="-12" max="12" value="0" class="eq-band" data-band="3">
+                        </div>
+                        <div class="equalizer-band">
+                            <label>14kHz</label>
+                            <input type="range" min="-12" max="12" value="0" class="eq-band" data-band="4">
+                        </div>
+                    </div>
+                </div>
+                <div class="sponsor-overlay" id="sponsor-overlay">Sponsored by: DiaPlus International</div>
+            </div>
+            <div class="tv-brand">ULTRAVISION</div>
+        </div>
+        
+        <div class="tv-stand">
+            <div class="stand"></div>
+        </div>
+        <div class="tv-stand">
+            <div class="base"></div>
+        </div>
+        
+        <div class="controls">
+            <div class="url-input">
+                <input type="text" id="video-url" placeholder="Paste video URL here...">
+                <button id="load-btn">LOAD</button>
+            </div>
+            
+            <div class="player-controls">
+                <button class="control-btn" id="play-pause"><i class="fas fa-play"></i></button>
+                <button class="control-btn" id="stop"><i class="fas fa-stop"></i></button>
+                <button class="control-btn" id="rewind"><i class="fas fa-backward-step"></i></button>
+                <button class="control-btn" id="forward"><i class="fas fa-forward-step"></i></button>
+                
+                <div class="progress-container" id="progress-container">
+                    <div id="progress-bar"></div>
+                </div>
+                
+                <div class="time-display">
+                    <span id="current-time">0:00</span> / <span id="total-time">0:00</span>
+                </div>
+                
+                <div class="volume-container">
+                    <button class="control-btn" id="mute"><i class="fas fa-volume-up"></i></button>
+                    <input type="range" id="volume" min="0" max="1" step="0.1" value="1">
+                </div>
+                
+                <button class="control-btn" id="fullscreen"><i class="fas fa-expand"></i></button>
+            </div>
+            
+            <div class="resume-option" id="resume-option">
+                <span>Resume from previous position? </span>
+                <button id="resume-yes">Yes</button>
+                <button id="resume-no">No</button>
+            </div>
+            
+            <div class="cloud-sync-options">
+                <button class="cloud-btn save" id="save-to-cloud">
+                    <i class="fas fa-cloud-upload-alt"></i> Save to Cloud
+                </button>
+                <button class="cloud-btn load" id="load-from-cloud">
+                    <i class="fas fa-cloud-download-alt"></i> Load from Cloud
+                </button>
+                <button class="cloud-btn" id="manage-cloud">
+                    <i class="fas fa-cog"></i> Cloud Settings
+                </button>
+            </div>
+            
+            <div class="tabs">
+                <div class="tab active" data-tab="history">History</div>
+                <div class="tab" data-tab="saved">Saved Links</div>
+            </div>
+            
+            <div class="tab-content active" id="history-content">
+                <div id="history-items">
+                    <div class="empty-message">No history yet. Videos you play will appear here.</div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="saved-content">
+                <div id="saved-items">
+                    <div class="empty-message">No saved links yet. Use the save button to add videos.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        &copy; 2023 DiaPlus International. All rights reserved.
+    </div>
 
-<h1>DiaPlus International TV</h1>
+    <!-- Cloud Settings Modal -->
+    <div class="modal" id="cloud-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Cloud Storage Settings</h3>
+                <button class="modal-close" id="close-cloud-modal">&times;</button>
+            </div>
+            <div class="cloud-form">
+                <p>Select cloud storage provider:</p>
+                <select id="cloud-provider">
+                    <option value="firebase">Firebase</option>
+                    <option value="aws">AWS S3</option>
+                    <option value="google">Google Drive</option>
+                    <option value="dropbox">Dropbox</option>
+                </select>
+                
+                <div id="firebase-config">
+                    <p>Firebase Configuration:</p>
+                    <input type="text" placeholder="API Key" id="firebase-api-key">
+                    <input type="text" placeholder="Project ID" id="firebase-project-id">
+                    <input type="text" placeholder="Storage Bucket" id="firebase-bucket">
+                </div>
+                
+                <div id="aws-config" style="display: none;">
+                    <p>AWS S3 Configuration:</p>
+                    <input type="text" placeholder="Access Key ID" id="aws-access-key">
+                    <input type="text" placeholder="Secret Access Key" id="aws-secret-key">
+                    <input type="text" placeholder="Bucket Name" id="aws-bucket">
+                </div>
+                
+                <button id="save-cloud-config">Save Configuration</button>
+            </div>
+        </div>
+    </div>
 
-<div id="player-container">
-  <!-- video element with multiple track support -->
-  <video id="video-player" controls preload="auto" crossorigin="anonymous">
-    Your browser does not support the video tag.
-  </video>
-</div>
-
-<div class="controls">
-  <input type="text" id="video-url" placeholder="Paste video URL (MP4/MKV/WebM)">
-  <button id="load-btn">Load & Play</button>
-  <select id="audio-select"><option value="">Audio Tracks</option></select>
-  <select id="subtitle-select"><option value="">Subtitles</option></select>
-</div>
-
-<div>
-  <span class="tab active" data-tab="history">History</span>
-  <span class="tab" data-tab="saved">Saved Links</span>
-</div>
-
-<div id="history" class="list"></div>
-<div id="saved" class="list" style="display:none"></div>
-
-<!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-
-<script>
-/* ====== Your Firebase configuration ====== */
-const firebaseConfig = {
-  apiKey: "AIzaSyDin-ueMfhRwZ7EOWrpYRbyhTcvtm-xZ6s",
-  authDomain: "dias-aea74.firebaseapp.com",
-  projectId: "dias-aea74",
-  storageBucket: "dias-aea74.firebasestorage.app",
-  messagingSenderId: "261547908584",
-  appId: "1:261547908584:web:809d448f6b35a1b0f7985d",
-  measurementId: "G-WQ2ZXZX0VV"
-};
-/* ========================================== */
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-firebase.auth().signInAnonymously();
-
-const player=document.getElementById("video-player"),
-      urlInput=document.getElementById("video-url"),
-      loadBtn=document.getElementById("load-btn"),
-      audioSel=document.getElementById("audio-select"),
-      subtitleSel=document.getElementById("subtitle-select"),
-      historyDiv=document.getElementById("history"),
-      savedDiv=document.getElementById("saved");
-
-let history=JSON.parse(localStorage.getItem("videoHistory"))||[];
-let saved=[];
-
-/* ===== Player Functions ===== */
-function play(url){
-  player.src=url;
-  player.muted=false;
-  player.volume=1;
-  player.play(); // plays after user click
-  addHistory(url);
-}
-function addHistory(url){
-  const name=url.split("/").pop()||"Video";
-  history=history.filter(h=>h.url!==url);
-  history.push({url,name,date:new Date().toISOString()});
-  if(history.length>10)history=history.slice(-10);
-  localStorage.setItem("videoHistory",JSON.stringify(history));
-  renderHistory();
-}
-function saveLink(url,name){
-  db.collection("savedLinks").add({url,name,date:new Date().toISOString()});
-  saved.push({url,name});
-  renderSaved();
-  alert("Saved to cloud!");
-}
-
-/* ===== Audio & Subtitle Track Handling ===== */
-function populateTracks(){
-  audioSel.innerHTML="<option value=''>Audio Tracks</option>";
-  subtitleSel.innerHTML="<option value=''>Subtitles</option>";
-  // audioTracks API
-  if(player.audioTracks && player.audioTracks.length){
-    [...player.audioTracks].forEach((track,i)=>{
-      const opt=document.createElement("option");
-      opt.value=i;
-      opt.text=track.label||`Track ${i+1}`;
-      audioSel.appendChild(opt);
-    });
-  }
-  // textTracks API (subtitles/captions)
-  [...player.textTracks].forEach((track,i)=>{
-    const opt=document.createElement("option");
-    opt.value=i;
-    opt.text=track.label||track.language||`Subtitle ${i+1}`;
-    subtitleSel.appendChild(opt);
-  });
-}
-audioSel.onchange=()=>{
-  if(player.audioTracks){
-    [...player.audioTracks].forEach((t,i)=>{t.enabled=(i==audioSel.value);});
-  }
-};
-subtitleSel.onchange=()=>{
-  [...player.textTracks].forEach((t,i)=>{
-    t.mode=(i==subtitleSel.value)?'showing':'disabled';
-  });
-};
-
-/* ===== UI Rendering ===== */
-function renderHistory(){
-  if(history.length===0){historyDiv.innerHTML="<p>No history yet</p>";return;}
-  historyDiv.innerHTML="";
-  history.slice().reverse().forEach(item=>{
-    const div=document.createElement("div");
-    div.className="item";
-    div.innerHTML=`<span>${item.name}</span>
-      <span>
-        <button onclick="play('${item.url}')">▶</button>
-        <button onclick="saveLink('${item.url}','${item.name}')">★</button>
-      </span>`;
-    historyDiv.appendChild(div);
-  });
-}
-function renderSaved(){
-  if(saved.length===0){savedDiv.innerHTML="<p>No saved links yet</p>";return;}
-  savedDiv.innerHTML="";
-  saved.forEach(item=>{
-    const div=document.createElement("div");
-    div.className="item";
-    div.innerHTML=`<span>${item.name}</span>
-      <span><button onclick="play('${item.url}')">▶</button></span>`;
-    savedDiv.appendChild(div);
-  });
-}
-
-/* ===== Event Wiring ===== */
-loadBtn.onclick=()=>{
-  if(urlInput.value){
-    play(urlInput.value);
-  }
-};
-player.onloadedmetadata=populateTracks;
-
-firebase.auth().onAuthStateChanged(async()=>{
-  const snap=await db.collection("savedLinks").get();
-  saved=snap.docs.map(d=>d.data());
-  renderSaved();
-});
-
-document.querySelectorAll(".tab").forEach(t=>{
-  t.onclick=()=>{
-    document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
-    t.classList.add("active");
-    historyDiv.style.display = t.dataset.tab==="history"?"block":"none";
-    savedDiv.style.display   = t.dataset.tab==="saved" ?"block":"none";
-  };
-});
-
-renderHistory();
-</script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get elements
+            const videoPlayer = document.getElementById('video-player');
+            const videoUrl = document.getElementById('video-url');
+            const loadBtn = document.getElementById('load-btn');
+            const playPauseBtn = document.getElementById('play-pause');
+            const stopBtn = document.getElementById('stop');
+            const rewindBtn = document.getElementById('rewind');
+            const forwardBtn = document.getElementById('forward');
+            const muteBtn = document.getElementById('mute');
+            const volumeSlider = document.getElementById('volume');
+            const fullscreenBtn = document.getElementById('fullscreen');
+            const progressContainer = document.getElementById('progress-container');
+            const progressBar = document.getElementById('progress-bar');
+            const currentTimeEl = document.getElementById('current-time');
+            const totalTimeEl = document.getElementById('total-time');
+            const resumeOption = document.getElementById('resume-option');
+            const resumeYes = document.getElementById('resume-yes');
+            const resumeNo = document.getElementById('resume-no');
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            const historyItems = document.getElementById('history-items');
+            const savedItems = document.getElementById('saved-items');
+            const cloudStatus = document.getElementById('cloud-status');
+            const saveToCloudBtn = document.getElementById('save-to-cloud');
+            const loadFromCloudBtn = document.getElementById('load-from-cloud');
+            const manageCloudBtn = document.getElementById('manage-cloud');
+            const cloudModal = document.getElementById('cloud-modal');
+            const closeCloudModal = document.getElementById('close-cloud-modal');
+            const cloudProvider = document.getElementById('cloud-provider');
+            const firebaseConfig = document.getElementById('firebase-config');
+            const awsConfig = document.getElementById('aws-config');
+            const saveCloudConfig = document.getElementById('save-cloud-config');
+            const toggleEqualizer = document.getElementById('toggle-equalizer');
+            const equalizerContainer = document.getElementById('equalizer-container');
+            const audioPresets = document.querySelectorAll('.audio-preset');
+            const eqBands = document.querySelectorAll('.eq-band');
+            
+            // Initialize data
+            let history = JSON.parse(localStorage.getItem('videoHistory')) || [];
+            let savedLinks = JSON.parse(localStorage.getItem('savedLinks')) || [];
+            let currentVideo = null;
+            let audioContext = null;
+            let sourceNode = null;
+            let gainNode = null;
+            let eqFilters = [];
+            
+            // Initialize audio context if supported
+            function initAudioContext() {
+                if (!audioContext && window.AudioContext) {
+                    try {
+                        audioContext = new AudioContext();
+                        setupAudioNodes();
+                        console.log("Audio context initialized");
+                    } catch (e) {
+                        console.error("Audio context initialization failed:", e);
+                    }
+                }
+            }
+            
+            // Set up audio nodes for processing
+            function setupAudioNodes() {
+                if (!audioContext) return;
+                
+                // Create gain node for volume control
+                gainNode = audioContext.createGain();
+                
+                // Create EQ filters
+                const frequencies = [60, 230, 910, 3600, 14000];
+                frequencies.forEach(freq => {
+                    const filter = audioContext.createBiquadFilter();
+                    filter.type = 'peaking';
+                    filter.frequency.value = freq;
+                    filter.Q.value = 1;
+                    filter.gain.value = 0;
+                    eqFilters.push(filter);
+                });
+                
+                // Connect nodes: source -> filters -> gain -> destination
+                if (sourceNode) {
+                    sourceNode.disconnect();
+                    
+                    // Connect through all filters
+                    let lastNode = sourceNode;
+                    eqFilters.forEach(filter => {
+                        lastNode.connect(filter);
+                        lastNode = filter;
+                    });
+                    
+                    // Connect to gain and then to destination
+                    lastNode.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                }
+            }
+            
+            // Apply audio preset
+            function applyAudioPreset(preset) {
+                if (eqFilters.length === 0) return;
+                
+                switch(preset) {
+                    case 'normal':
+                        eqFilters[0].gain.value = 0;  // 60Hz
+                        eqFilters[1].gain.value = 0;  // 230Hz
+                        eqFilters[2].gain.value = 0;  // 910Hz
+                        eqFilters[3].gain.value = 0;  // 3.6kHz
+                        eqFilters[4].gain.value = 0;  // 14kHz
+                        break;
+                    case 'bass':
+                        eqFilters[0].gain.value = 8;   // 60Hz
+                        eqFilters[1].gain.value = 4;   // 230Hz
+                        eqFilters[2].gain.value = 0;   // 910Hz
+                        eqFilters[3].gain.value = -2;  // 3.6kHz
+                        eqFilters[4].gain.value = -2;  // 14kHz
+                        break;
+                    case 'treble':
+                        eqFilters[0].gain.value = -2;  // 60Hz
+                        eqFilters[1].gain.value = -2;  // 230Hz
+                        eqFilters[2].gain.value = 0;   // 910Hz
+                        eqFilters[3].gain.value = 4;   // 3.6kHz
+                        eqFilters[4].gain.value = 8;   // 14kHz
+                        break;
+                }
+                
+                // Update UI
+                audioPresets.forEach(btn => {
+                    if (btn.getAttribute('data-preset') === preset) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+                
+                // Update sliders
+                eqFilters.forEach((filter, index) => {
+                    eqBands[index].value = filter.gain.value;
+                });
+            }
+            
+            // Load data from localStorage
+            function loadData() {
+                updateHistoryDisplay();
+                updateSavedDisplay();
+                
+                // Check if we have cloud configuration
+                const cloudConfig = JSON.parse(localStorage.getItem('cloudConfig'));
+                if (cloudConfig && cloudConfig.configured) {
+                    cloudStatus.classList.add('connected');
+                    cloudStatus.innerHTML = '<i class="fas fa-cloud"></i> Cloud: Connected';
+                }
+            }
+            
+            // Update history display
+            function updateHistoryDisplay() {
+                if (history.length === 0) {
+                    historyItems.innerHTML = '<div class="empty-message">No history yet. Videos you play will appear here.</div>';
+                    return;
+                }
+                
+                historyItems.innerHTML = '';
+                history.slice().reverse().forEach((item, index) => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'history-item';
+                    
+                    const videoName = item.name || item.url.split('/').pop() || `Video ${history.length - index}`;
+                    const date = new Date(item.date).toLocaleString();
+                    
+                    historyItem.innerHTML = `
+                        <div>
+                            <div>${videoName}</div>
+                            <div style="font-size: 12px; color: #aaa;">${date}</div>
+                        </div>
+                        <div class="item-actions">
+                            <button class="item-btn play-history" data-url="${item.url}"><i class="fas fa-play"></i></button>
+                            <button class="item-btn save-history" data-url="${item.url}" data-name="${videoName}"><i class="fas fa-bookmark"></i></button>
+                            <button class="item-btn delete-history" data-index="${history.length - 1 - index}"><i class="fas fa-trash"></i></button>
+                        </div>
+                    `;
+                    
+                    historyItems.appendChild(historyItem);
+                });
+                
+                // Add event listeners
+                document.querySelectorAll('.play-history').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const url = this.getAttribute('data-url');
+                        videoUrl.value = url;
+                        loadVideo(url);
+                    });
+                });
+                
+                document.querySelectorAll('.save-history').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const url = this.getAttribute('data-url');
+                        const name = this.getAttribute('data-name');
+                        saveLink(url, name);
+                    });
+                });
+                
+                document.querySelectorAll('.delete-history').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const index = parseInt(this.getAttribute('data-index'));
+                        deleteHistoryItem(index);
+                    });
+                });
+            }
+            
+            // Update saved links display
+            function updateSavedDisplay() {
+                if (savedLinks.length === 0) {
+                    savedItems.innerHTML = '<div class="empty-message">No saved links yet. Use the save button to add videos.</div>';
+                    return;
+                }
+                
+                savedItems.innerHTML = '';
+                savedLinks.forEach((item, index) => {
+                    const savedItem = document.createElement('div');
+                    savedItem.className = 'saved-item';
+                    
+                    const videoName = item.name || item.url.split('/').pop() || `Video ${index + 1}`;
+                    
+                    savedItem.innerHTML = `
+                        <div>${videoName}</div>
+                        <div class="item-actions">
+                            <button class="item-btn play-saved" data-url="${item.url}"><i class="fas fa-play"></i></button>
+                            <button class="item-btn delete-saved" data-index="${index}"><i class="fas fa-trash"></i></button>
+                        </div>
+                    `;
+                    
+                    savedItems.appendChild(savedItem);
+                });
+                
+                // Add event listeners
+                document.querySelectorAll('.play-saved').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const url = this.getAttribute('data-url');
+                        videoUrl.value = url;
+                        loadVideo(url);
+                    });
+                });
+                
+                document.querySelectorAll('.delete-saved').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const index = parseInt(this.getAttribute('data-index'));
+                        deleteSavedItem(index);
+                    });
+                });
+            }
+            
+            // Delete history item
+            function deleteHistoryItem(index) {
+                history.splice(index, 1);
+                localStorage.setItem('videoHistory', JSON.stringify(history));
+                updateHistoryDisplay();
+            }
+            
+            // Delete saved item
+            function deleteSavedItem(index) {
+                savedLinks.splice(index, 1);
+                localStorage.setItem('savedLinks', JSON.stringify(savedLinks));
+                updateSavedDisplay();
+            }
+            
+            // Save link to saved list
+            function saveLink(url, name) {
+                // Check if already saved
+                if (savedLinks.some(item => item.url === url)) {
+                    alert('This video is already in your saved list!');
+                    return;
+                }
+                
+                savedLinks.push({ url, name, date: new Date().toISOString() });
+                localStorage.setItem('savedLinks', JSON.stringify(savedLinks));
+                updateSavedDisplay();
+                alert('Video saved to your list!');
+            }
+            
+            // Add to history
+            function addToHistory(url, name) {
+                // Remove if already exists
+                history = history.filter(item => item.url !== url);
+                
+                // Add to beginning of array
+                history.push({ url, name, date: new Date().toISOString() });
+                
+                // Keep only last 10 items
+                if (history.length > 10) {
+                    history = history.slice(history.length - 10);
+                }
+                
+                localStorage.setItem('videoHistory', JSON.stringify(history));
+                updateHistoryDisplay();
+            }
+            
+            // Load video from URL
+            function loadVideo(url) {
+                // Check if we have a saved position for this video
+                const savedPosition = localStorage.getItem(`videoPosition_${url}`);
+                
+                if (savedPosition && savedPosition > 10) {
+                    // Show resume option
+                    currentVideo = url;
+                    resumeOption.style.display = 'block';
+                } else {
+                    // Start from beginning
+                    videoPlayer.src = url;
+                    videoPlayer.load();
+                    videoPlayer.currentTime = 0;
+                    playPauseBtn.querySelector('i').classList.remove('fa-play');
+                    playPauseBtn.querySelector('i').classList.add('fa-pause');
+                    
+                    // Extract video name for history
+                    const videoName = url.split('/').pop() || 'Unknown Video';
+                    addToHistory(url, videoName);
+                }
+            }
+            
+            // Save data to cloud (simulated)
+            function saveToCloud() {
+                const cloudConfig = JSON.parse(localStorage.getItem('cloudConfig'));
+                if (!cloudConfig || !cloudConfig.configured) {
+                    alert('Please configure cloud storage first.');
+                    cloudModal.style.display = 'flex';
+                    return;
+                }
+                
+                cloudStatus.classList.remove('connected');
+                cloudStatus.classList.add('syncing');
+                cloudStatus.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> Cloud: Syncing...';
+                
+                // Simulate cloud save
+                setTimeout(() => {
+                    const data = {
+                        history: history,
+                        savedLinks: savedLinks,
+                        timestamp: new Date().toISOString()
+                    };
+                    
+                    // In a real implementation, this would be an API call
+                    localStorage.setItem('cloudBackup', JSON.stringify(data));
+                    
+                    cloudStatus.classList.remove('syncing');
+                    cloudStatus.classList.add('connected');
+                    cloudStatus.innerHTML = '<i class="fas fa-cloud"></i> Cloud: Data Saved';
+                    
+                    alert('Data successfully saved to cloud!');
+                    
+                    // Revert status after 3 seconds
+                    setTimeout(() => {
+                        cloudStatus.innerHTML = '<i class="fas fa-cloud"></i> Cloud: Connected';
+                    }, 3000);
+                }, 1500);
+            }
+            
+            // Load data from cloud (simulated)
+            function loadFromCloud() {
+                const cloudConfig = JSON.parse(localStorage.getItem('cloudConfig'));
+                if (!cloudConfig || !cloudConfig.configured) {
+                    alert('Please configure cloud storage first.');
+                    cloudModal.style.display = 'flex';
+                    return;
+                }
+                
+                cloudStatus.classList.remove('connected');
+                cloudStatus.classList.add('syncing');
+                cloudStatus.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> Cloud: Syncing...';
+                
+                // Simulate cloud load
+                setTimeout(() => {
+                    const cloudData = JSON.parse(localStorage.getItem('cloudBackup'));
+                    
+                    if (cloudData) {
+                        history = cloudData.history || [];
+                        savedLinks = cloudData.savedLinks || [];
+                        
+                        localStorage.setItem('videoHistory', JSON.stringify(history));
+                        localStorage.setItem('savedLinks', JSON.stringify(savedLinks));
+                        
+                        updateHistoryDisplay();
+                        updateSavedDisplay();
+                        
+                        cloudStatus.classList.remove('syncing');
+                        cloudStatus.classList.add('connected');
+                        cloudStatus.innerHTML = '<i class="fas fa-cloud"></i> Cloud: Data Loaded';
+                        
+                        alert('Data successfully loaded from cloud!');
+                        
+                        // Revert status after 3 seconds
+                        setTimeout(() => {
+                            cloudStatus.innerHTML = '<i class="fas fa-cloud"></i> Cloud: Connected';
+                        }, 3000);
+                    } else {
+                        cloudStatus.classList.remove('syncing');
+                        cloudStatus.classList.add('error');
+                        cloudStatus.innerHTML = '<i class="fas fa-cloud"></i> Cloud: No Data Found';
+                        
+                        alert('No cloud data found!');
+                        
+                        // Revert status after 3 seconds
+                        setTimeout(() => {
+                            cloudStatus.classList.remove('error');
+                            cloudStatus.classList.add('connected');
+                            cloudStatus.innerHTML = '<i class="fas fa-cloud"></i> Cloud: Connected';
+                        }, 3000);
+                    }
+                }, 1500);
+            }
+            
+            loadBtn.addEventListener('click', function() {
+                if (videoUrl.value) {
+                    loadVideo(videoUrl.value);
+                }
+            });
+            
+            // Resume options
+            resumeYes.addEventListener('click', function() {
+                const savedPosition = localStorage.getItem(`videoPosition_${currentVideo}`);
+                videoPlayer.src = currentVideo;
+                videoPlayer.load();
+                videoPlayer.currentTime = parseFloat(savedPosition);
+                videoPlayer.play();
+                playPauseBtn.querySelector('i').classList.remove('fa-play');
+                playPauseBtn.querySelector('i').classList.add('fa-pause');
+                resumeOption.style.display = 'none';
+                
+                // Extract video name for history
+                const videoName = currentVideo.split('/').pop() || 'Unknown Video';
+                addToHistory(currentVideo, videoName);
+            });
+            
+            resumeNo.addEventListener('click', function() {
+                videoPlayer.src = currentVideo;
+                videoPlayer.load();
+                videoPlayer.currentTime = 0;
+                videoPlayer.play();
+                playPauseBtn.querySelector('i').classList.remove('fa-play');
+                playPauseBtn.querySelector('i').classList.add('fa-pause');
+                resumeOption.style.display = 'none';
+                
+                // Remove saved position
+                localStorage.removeItem(`videoPosition_${currentVideo}`);
+                
+                // Extract video name for history
+                const videoName = currentVideo.split('/').pop() || 'Unknown Video';
+                addToHistory(currentVideo, videoName);
+            });
+            
+            // Play/Pause
+            playPauseBtn.addEventListener('click', function() {
+                if (videoPlayer.paused || videoPlayer.ended) {
+                    videoPlayer.play();
+                    playPauseBtn.querySelector('i').classList.remove('fa-play');
+                    playPauseBtn.querySelector('i').classList.add('fa-pause');
+                    
+                    // Initialize audio context when playback starts
+                    initAudioContext();
+                } else {
+                    videoPlayer.pause();
+                    playPauseBtn.querySelector('i').classList.remove('fa-pause');
+                    playPauseBtn.querySelector('i').classList.add('fa-play');
+                }
+            });
+            
+            // Stop
+            stopBtn.addEventListener('click', function() {
+                videoPlayer.pause();
+                videoPlayer.currentTime = 0;
+                progressBar.style.width = '0%';
+                playPauseBtn.querySelector('i').classList.remove('fa-pause');
+                playPauseBtn.querySelector('i').classList.add('fa-play');
+            });
+            
+            // Rewind
+            rewindBtn.addEventListener('click', function() {
+                videoPlayer.currentTime -= 10;
+            });
+            
+            // Forward
+            forwardBtn.addEventListener('click', function() {
+                videoPlayer.currentTime += 10;
+            });
+            
+            // Mute
+            muteBtn.addEventListener('click', function() {
+                videoPlayer.muted = !videoPlayer.muted;
+                if (videoPlayer.muted) {
+                    muteBtn.querySelector('i').classList.remove('fa-volume-up');
+                    muteBtn.querySelector('i').classList.add('fa-volume-mute');
+                    volumeSlider.value = 0;
+                } else {
+                    muteBtn.querySelector('i').classList.remove('fa-volume-mute');
+                    muteBtn.querySelector('i').classList.add('fa-volume-up');
+                    volumeSlider.value = videoPlayer.volume;
+                }
+            });
+            
+            // Volume
+            volumeSlider.addEventListener('input', function() {
+                videoPlayer.volume = volumeSlider.value;
+                if (gainNode) {
+                    gainNode.gain.value = videoPlayer.volume;
+                }
+                
+                if (videoPlayer.volume == 0) {
+                    muteBtn.querySelector('i').classList.remove('fa-volume-up');
+                    muteBtn.querySelector('i').classList.add('fa-volume-mute');
+                    videoPlayer.muted = true;
+                } else {
+                    muteBtn.querySelector('i').classList.remove('fa-volume-mute');
+                    muteBtn.querySelector('i').classList.add('fa-volume-up');
+                    videoPlayer.muted = false;
+                }
+            });
+            
+            // Fullscreen
+            fullscreenBtn.addEventListener('click', function() {
+                if (videoPlayer.requestFullscreen) {
+                    videoPlayer.requestFullscreen();
+                } else if (videoPlayer.webkitRequestFullscreen) {
+                    videoPlayer.webkitRequestFullscreen();
+                } else if (videoPlayer.msRequestFullscreen) {
+                    videoPlayer.msRequestFullscreen();
+                }
+            });
+            
+            // Progress bar
+            videoPlayer.addEventListener('timeupdate', function() {
+                const currentTime = videoPlayer.currentTime;
+                const duration = videoPlayer.duration;
+                
+                if (duration) {
+                    const percent = (currentTime / duration) * 100;
+                    progressBar.style.width = percent + '%';
+                    
+                    // Update time displays
+                    currentTimeEl.textContent = formatTime(currentTime);
+                    totalTimeEl.textContent = formatTime(duration);
+                    
+                    // Save playback position every 10 seconds
+                    if (videoPlayer.src && Math.floor(currentTime) % 10 === 0) {
+                        localStorage.setItem(`videoPosition_${videoPlayer.src}`, currentTime);
+                    }
+                }
+            });
+            
+            // Click on progress bar to seek
+            progressContainer.addEventListener('click', function(e) {
+                const pos = (e.pageX - this.offsetLeft) / this.offsetWidth;
+                videoPlayer.currentTime = pos * videoPlayer.duration;
+            });
+            
+            // Format time in minutes:seconds
+            function formatTime(seconds) {
+                const min = Math.floor(seconds / 60);
+                const sec = Math.floor(seconds % 60);
+                return min + ':' + (sec < 10 ? '0' + sec : sec);
+            }
+            
+            // Update play/pause button when video ends
+            videoPlayer.addEventListener('ended', function() {
+                playPauseBtn.querySelector('i').classList.remove('fa-pause');
+                playPauseBtn.querySelector('i').classList.add('fa-play');
+                progressBar.style.width = '0%';
+                
+                // Remove saved position when video ends
+                if (videoPlayer.src) {
+                    localStorage.removeItem(`videoPosition_${videoPlayer.src}`);
+                }
+            });
+            
+            // Tab functionality
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    // Update active tab
+                    tabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Show correct content
+                    tabContents.forEach(content => {
+                        content.classList.remove('active');
+                        if (content.id === `${tabId}-content`) {
+                            content.classList.add('active');
+                        }
+                    });
+                });
+            });
+            
+            // Cloud functionality
+            saveToCloudBtn.addEventListener('click', saveToCloud);
+            loadFromCloudBtn.addEventListener('click', loadFromCloud);
+            
+            manageCloudBtn.addEventListener('click', function() {
+                cloudModal.style.display = 'flex';
+            });
+            
+            closeCloudModal.addEventListener('click', function() {
+                cloudModal.style.display = 'none';
+            });
+            
+            cloudProvider.addEventListener('change', function() {
+                if (this.value === 'firebase') {
+                    firebaseConfig.style.display = 'block';
+                    awsConfig.style.display = 'none';
+                } else if (this.value === 'aws') {
+                    firebaseConfig.style.display = 'none';
+                    awsConfig.style.display = 'block';
+                } else {
+                    firebaseConfig.style.display = 'none';
+                    awsConfig.style.display = 'none';
+                }
+            });
+            
+            saveCloudConfig.addEventListener('click', function() {
+                const provider = cloudProvider.value;
+                
+                // Save configuration
+                const cloudConfig = {
+                    provider: provider,
+                    configured: true,
+                    timestamp: new Date().toISOString()
+                };
+                
+                localStorage.setItem('cloudConfig', JSON.stringify(cloudConfig));
+                
+                cloudStatus.classList.add('connected');
+                cloudStatus.innerHTML = '<i class="fas fa-cloud"></i> Cloud: Connected';
+                
+                alert('Cloud configuration saved!');
+                cloudModal.style.display = 'none';
+            });
+            
+            // Audio controls
+            toggleEqualizer.addEventListener('click', function() {
+                if (equalizerContainer.style.display === 'flex') {
+                    equalizerContainer.style.display = 'none';
+                } else {
+                    equalizerContainer.style.display = 'flex';
+                }
+            });
+            
+            audioPresets.forEach(preset => {
+                preset.addEventListener('click', function() {
+                    const presetName = this.getAttribute('data-preset');
+                    applyAudioPreset(presetName);
+                });
+            });
+            
+            eqBands.forEach((band, index) => {
+                band.addEventListener('input', function() {
+                    if (eqFilters[index]) {
+                        eqFilters[index].gain.value = parseFloat(this.value);
+                    }
+                    
+                    // Remove active class from presets when manually adjusting
+                    audioPresets.forEach(preset => {
+                        preset.classList.remove('active');
+                    });
+                });
+            });
+            
+            // Create audio node when video source is set
+            videoPlayer.addEventListener('play', function() {
+                if (!audioContext) {
+                    initAudioContext();
+                }
+                
+                if (audioContext && !sourceNode) {
+                    sourceNode = audioContext.createMediaElementSource(videoPlayer);
+                    setupAudioNodes();
+                }
+                
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+            });
+            
+            // Initialize the app
+            loadData();
+            applyAudioPreset('normal');
+        });
+    </script>
 </body>
 </html>
-
-
