@@ -4,7 +4,45 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Cloudstream Web</title>
-  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body {
+      background-color: #121212;
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+    }
+    #app {
+      max-width: 800px;
+      margin: auto;
+      padding: 20px;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    button {
+      background-color: #1f80e0;
+      color: white;
+      border: none;
+      padding: 10px;
+      cursor: pointer;
+    }
+    #repo-list button {
+      display: block;
+      margin: 10px 0;
+      padding: 8px;
+      background-color: #333;
+      border: none;
+      color: white;
+      width: 100%;
+      text-align: left;
+    }
+    video {
+      margin-top: 20px;
+      background: black;
+    }
+  </style>
 </head>
 <body>
   <div id="app">
@@ -14,14 +52,75 @@
     </header>
     <main>
       <div id="repo-list"></div>
-      <video id="videoPlayer" controls width="100%" poster="thumbnail.jpg">
-        <source src="" type="video/mp4" />
-        Your browser does not support HTML5 video.
-      </video>
+      <video id="videoPlayer" controls width="100%" poster="thumbnail.jpg"></video>
     </main>
   </div>
-  <script type="module" src="firebase-config.js"></script>
-  <script type="module" src="app.js"></script>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-analytics.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDin-ueMfhRwZ7EOWrpYRbyhTcvtm-xZ6s",
+      authDomain: "dias-aea74.firebaseapp.com",
+      projectId: "dias-aea74",
+      storageBucket: "dias-aea74.appspot.com",
+      messagingSenderId: "261547908584",
+      appId: "1:261547908584:web:809d448f6b35a1b0f7985d",
+      measurementId: "G-WQ2ZXZX0VV"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    getAnalytics(app);
+
+    async function loadRepos() {
+      const repoList = document.getElementById("repo-list");
+      const querySnapshot = await getDocs(collection(db, "repositories"));
+      repoList.innerHTML = "";
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        const btn = document.createElement("button");
+        btn.textContent = data.name;
+        btn.onclick = () => loadVideo(data.videoUrl);
+        repoList.appendChild(btn);
+      });
+    }
+
+    function loadVideo(url) {
+      const video = document.getElementById("videoPlayer");
+      if (window.hls) {
+        window.hls.destroy();
+        window.hls = null;
+      }
+      if (Hls.isSupported() && url.endsWith(".m3u8")) {
+        const hls = new Hls();
+        hls.loadSource(url);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
+        window.hls = hls;
+      } else {
+        video.src = url;
+        video.load();
+        video.play();
+      }
+    }
+
+    async function addRepo() {
+      const name = prompt("Repository name:");
+      const videoUrl = prompt("Video URL (.mp4 or .m3u8):");
+      if (name && videoUrl) {
+        await addDoc(collection(db, "repositories"), { name, videoUrl });
+        loadRepos();
+      }
+    }
+
+    window.onload = loadRepos;
+  </script>
+
+  <!-- HLS.js -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </body>
 </html>
-
