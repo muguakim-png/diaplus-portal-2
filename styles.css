@@ -1,0 +1,33 @@
+body {
+  background-color: #121212;
+  color: #fff;
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+}
+#app {
+  max-width: 800px;
+  margin: auto;
+  padding: 20px;
+}
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+button {
+  background-color: #1f80e0;
+  color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+}
+#repo-list button {
+  display: block;
+  margin: 10px 0;
+  padding: 8px;
+  background-color: #333;
+  border: none;
+  color: white;
+  width: 100%;
+  text-align: left;
+}
