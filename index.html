@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UHD Movies Video Player</title>
+    <title>UHD Movies TV Player</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -14,63 +14,91 @@
         }
         
         body {
-            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-            color: #fff;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             padding: 20px;
+            color: white;
+        }
+        
+        .header {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo i {
+            height: 40px;
+            margin-right: 10px;
+            line-height: 40px;
+        }
+        
+        .search-container {
+            display: flex;
+            width: 50%;
+        }
+        
+        #search-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 5px 0 0 5px;
+            font-size: 16px;
+            background: #222;
+            color: white;
+        }
+        
+        #search-btn {
+            padding: 12px 20px;
+            background: #e50914;
+            color: white;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        
+        #search-btn:hover {
+            background: #ff0a16;
         }
         
         .container {
+            width: 100%;
             max-width: 1200px;
-            margin: 0 auto;
+            background-color: rgba(0, 0, 0, 0.8);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .tv-frame {
+            position: relative;
             padding: 20px;
+            background: #222;
+            border-radius: 15px 15px 0 0;
         }
         
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 15px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-        }
-        
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-        }
-        
-        .tagline {
-            font-size: 1.2rem;
-            opacity: 0.9;
-        }
-        
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-        }
-        
-        @media (max-width: 900px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        .player-section {
-            background: rgba(0, 0, 0, 0.5);
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-        }
-        
-        .video-container {
+        .tv-screen {
             position: relative;
             width: 100%;
             padding-top: 56.25%; /* 16:9 Aspect Ratio */
-            margin-bottom: 20px;
-            background: #000;
+            background-color: #000;
             border-radius: 10px;
             overflow: hidden;
         }
@@ -81,207 +109,229 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: #000;
-            border-radius: 10px;
+            background-color: #000;
+            z-index: 2;
+        }
+        
+        .sponsor-overlay {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            z-index: 3;
+            display: none;
+        }
+        
+        .tv-stand {
+            display: flex;
+            justify-content: center;
+        }
+        
+        .stand {
+            width: 100px;
+            height: 50px;
+            background: linear-gradient(to bottom, #444, #222);
+            border-radius: 0 0 10px 10px;
+        }
+        
+        .base {
+            width: 300px;
+            height: 20px;
+            background: linear-gradient(to bottom, #555, #333);
+            border-radius: 5px;
+            margin-top: -5px;
+        }
+        
+        .controls {
+            padding: 20px;
+            background: #333;
+            border-radius: 0 0 15px 15px;
+        }
+        
+        .url-input {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        
+        #video-url {
+            flex: 1;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 5px 0 0 5px;
+            font-size: 16px;
+            background: #222;
+            color: white;
+        }
+        
+        #load-btn {
+            padding: 12px 20px;
+            background: #e50914;
+            color: white;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        
+        #load-btn:hover {
+            background: #ff0a16;
         }
         
         .player-controls {
             display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-top: 15px;
-        }
-        
-        button {
-            padding: 12px 20px;
-            background: #ff5722;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            flex: 1;
-            min-width: 120px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        
-        button:hover {
-            background: #ff7043;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-        
-        button:active {
-            transform: translateY(0);
-        }
-        
-        .control-group {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-top: 15px;
-            flex-wrap: wrap;
-        }
-        
-        .volume-control, .speed-control {
-            display: flex;
             align-items: center;
             gap: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 10px 15px;
-            border-radius: 8px;
-            flex: 1;
+            margin-bottom: 15px;
         }
         
-        input[type="range"] {
-            flex: 1;
-            height: 8px;
-            -webkit-appearance: none;
-            appearance: none;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            outline: none;
-        }
-        
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
+        .control-btn {
+            background: #444;
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            background: #ff5722;
             cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background 0.3s;
+        }
+        
+        .control-btn:hover {
+            background: #555;
+        }
+        
+        .control-btn i {
+            font-size: 18px;
         }
         
         .progress-container {
-            width: 100%;
+            flex: 1;
             height: 10px;
-            background: rgba(255, 255, 255, 0.2);
+            background: #222;
             border-radius: 5px;
-            margin-top: 15px;
             cursor: pointer;
+            position: relative;
         }
         
-        .progress-bar {
+        #progress-bar {
             height: 100%;
-            background: #ff5722;
+            background: #e50914;
             border-radius: 5px;
             width: 0%;
         }
         
-        .time-display {
+        .volume-container {
             display: flex;
-            justify-content: space-between;
-            margin-top: 5px;
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
-        
-        .content-section {
-            background: rgba(0, 0, 0, 0.5);
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-        }
-        
-        h2 {
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .search-box {
-            display: flex;
-            margin-bottom: 20px;
-        }
-        
-        .search-box input {
-            flex: 1;
-            padding: 12px 15px;
-            border: none;
-            border-radius: 8px 0 0 8px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            outline: none;
-        }
-        
-        .search-box button {
-            border-radius: 0 8px 8px 0;
-            min-width: auto;
-        }
-        
-        .categories {
-            display: flex;
-            flex-wrap: wrap;
+            align-items: center;
             gap: 10px;
-            margin-bottom: 20px;
         }
         
-        .category {
-            padding: 8px 15px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
+        #volume {
+            width: 80px;
             cursor: pointer;
-            transition: all 0.3s ease;
         }
         
-        .category:hover, .category.active {
-            background: #ff5722;
+        .time-display {
+            color: white;
+            font-size: 14px;
+            margin-left: 10px;
         }
         
-        .video-list {
+        .power-light {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            width: 15px;
+            height: 15px;
+            background: #e50914;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #e50914;
+        }
+        
+        .tv-brand {
+            position: absolute;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 15px;
+            background: #222;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            background: #333;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .tab.active {
+            background: #e50914;
+            font-weight: bold;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 15px;
+            background: #222;
+            border-radius: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .content-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 15px;
-            margin-top: 20px;
-            max-height: 400px;
-            overflow-y: auto;
-            padding: 10px;
+            margin-top: 15px;
         }
         
-        .video-item {
-            background: rgba(255, 255, 255, 0.1);
+        .content-card {
+            background: #333;
             border-radius: 8px;
             overflow: hidden;
-            transition: all 0.3s ease;
+            transition: transform 0.3s;
             cursor: pointer;
         }
         
-        .video-item:hover {
+        .content-card:hover {
             transform: scale(1.05);
-            background: rgba(255, 255, 255, 0.2);
         }
         
-        .video-thumb {
+        .content-thumb {
             width: 100%;
-            height: 120px;
-            background: #3498db;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-            position: relative;
+            height: 150px;
+            object-fit: cover;
         }
         
-        .video-duration {
-            position: absolute;
-            bottom: 5px;
-            right: 5px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 2px 5px;
-            border-radius: 4px;
-            font-size: 0.7rem;
-        }
-        
-        .video-info {
+        .content-info {
             padding: 10px;
         }
         
-        .video-title {
+        .content-title {
+            font-size: 14px;
             font-weight: bold;
             margin-bottom: 5px;
             white-space: nowrap;
@@ -289,33 +339,122 @@
             text-overflow: ellipsis;
         }
         
-        .video-meta {
-            font-size: 0.8rem;
-            opacity: 0.7;
-            display: flex;
-            justify-content: space-between;
+        .content-meta {
+            font-size: 12px;
+            color: #aaa;
         }
         
-        .status {
+        .history-item, .saved-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: #333;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            color: white;
+        }
+        
+        .history-item:hover, .saved-item:hover {
+            background: #444;
+        }
+        
+        .item-actions {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .item-btn {
+            background: #555;
+            border: none;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .resume-option {
             margin-top: 15px;
             padding: 10px;
-            border-radius: 8px;
-            background: rgba(0, 0, 0, 0.3);
+            background: #4CAF50;
+            border-radius: 5px;
             text-align: center;
+            cursor: pointer;
+            display: none;
+        }
+        
+        .search-results {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .category-title {
+            margin: 20px 0 10px 0;
+            padding-bottom: 5px;
+            border-bottom: 2px solid #e50914;
+        }
+        
+        @media (max-width: 768px) {
+            .player-controls {
+                flex-wrap: wrap;
+            }
+            
+            .progress-container {
+                order: 1;
+                width: 100%;
+                margin-top: 10px;
+            }
+            
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .logo {
+                margin-bottom: 10px;
+            }
+            
+            .search-container {
+                width: 100%;
+            }
+            
+            .content-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
+        
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            color: white;
+            font-size: 14px;
+        }
+        
+        .empty-message {
+            text-align: center;
+            padding: 20px;
+            color: #888;
         }
         
         .loading {
             display: flex;
             justify-content: center;
-            margin: 20px 0;
+            align-items: center;
+            padding: 20px;
         }
         
-        .spinner {
+        .loading-spinner {
             width: 40px;
             height: 40px;
-            border: 4px solid rgba(255, 255, 255, 0.3);
+            border: 4px solid #333;
+            border-top: 4px solid #e50914;
             border-radius: 50%;
-            border-top: 4px solid #ff5722;
             animation: spin 1s linear infinite;
         }
         
@@ -323,378 +462,499 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        
-        footer {
-            text-align: center;
-            margin-top: 40px;
-            padding: 20px;
-            opacity: 0.8;
-        }
-        
-        .firebase-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            background: rgba(255, 152, 0, 0.2);
-            padding: 5px 10px;
-            border-radius: 5px;
-            margin-top: 10px;
-        }
     </style>
 </head>
 <body>
+    <div class="header">
+        <div class="logo">
+            <i class="fas fa-tv"></i>
+            <span>UHD Movies TV Player</span>
+        </div>
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Search for movies or series...">
+            <button id="search-btn"><i class="fas fa-search"></i></button>
+        </div>
+    </div>
+    
     <div class="container">
-        <header>
-            <h1><i class="fas fa-film"></i> UHD Movies Video Player</h1>
-            <p class="tagline">Stream high-quality content from UHDMovies with Firebase integration</p>
-        </header>
+        <div class="tv-frame">
+            <div class="power-light"></div>
+            <div class="tv-screen">
+                <video id="video-player">
+                    Your browser does not support the video tag.
+                </video>
+                <div class="sponsor-overlay" id="sponsor-overlay">Sponsored by: UHD Movies</div>
+            </div>
+            <div class="tv-brand">ULTRAVISION</div>
+        </div>
         
-        <div class="main-content">
-            <div class="player-section">
-                <h2>Now Playing</h2>
-                <div class="video-container">
-                    <video id="video-player">
-                        Your browser does not support the video tag.
-                    </video>
-                </div>
+        <div class="tv-stand">
+            <div class="stand"></div>
+        </div>
+        <div class="tv-stand">
+            <div class="base"></div>
+        </div>
+        
+        <div class="controls">
+            <div class="url-input">
+                <input type="text" id="video-url" placeholder="Paste video URL here...">
+                <button id="load-btn">LOAD</button>
+            </div>
+            
+            <div class="player-controls">
+                <button class="control-btn" id="play-pause"><i class="fas fa-play"></i></button>
+                <button class="control-btn" id="stop"><i class="fas fa-stop"></i></button>
+                <button class="control-btn" id="rewind"><i class="fas fa-backward-step"></i></button>
+                <button class="control-btn" id="forward"><i class="fas fa-forward-step"></i></button>
                 
                 <div class="progress-container" id="progress-container">
-                    <div class="progress-bar" id="progress-bar"></div>
+                    <div id="progress-bar"></div>
                 </div>
                 
                 <div class="time-display">
-                    <span id="current-time">0:00</span>
-                    <span id="duration">0:00</span>
+                    <span id="current-time">0:00</span> / <span id="total-time">0:00</span>
                 </div>
                 
-                <div class="player-controls">
-                    <button id="play-btn"><i class="fas fa-play"></i> Play</button>
-                    <button id="pause-btn"><i class="fas fa-pause"></i> Pause</button>
-                    <button id="mute-btn"><i class="fas fa-volume-up"></i> Mute</button>
-                    <button id="fullscreen-btn"><i class="fas fa-expand"></i> Fullscreen</button>
+                <div class="volume-container">
+                    <button class="control-btn" id="mute"><i class="fas fa-volume-up"></i></button>
+                    <input type="range" id="volume" min="0" max="1" step="0.1" value="1">
                 </div>
                 
-                <div class="control-group">
-                    <div class="volume-control">
-                        <i class="fas fa-volume-up"></i>
-                        <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="1">
+                <button class="control-btn" id="fullscreen"><i class="fas fa-expand"></i></button>
+            </div>
+            
+            <div class="resume-option" id="resume-option">
+                <span>Resume from previous position? </span>
+                <button id="resume-yes">Yes</button>
+                <button id="resume-no">No</button>
+            </div>
+            
+            <div class="tabs">
+                <div class="tab active" data-tab="browse">Browse Content</div>
+                <div class="tab" data-tab="search">Search Results</div>
+                <div class="tab" data-tab="history">History</div>
+                <div class="tab" data-tab="saved">Saved</div>
+            </div>
+            
+            <div class="tab-content active" id="browse-content">
+                <h3 class="category-title">Featured Movies</h3>
+                <div class="content-grid" id="featured-movies">
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
                     </div>
-                    
-                    <div class="speed-control">
-                        <i class="fas fa-tachometer-alt"></i>
-                        <select id="speed-select">
-                            <option value="0.5">0.5x</option>
-                            <option value="0.75">0.75x</option>
-                            <option value="1" selected>1x</option>
-                            <option value="1.25">1.25x</option>
-                            <option value="1.5">1.5x</option>
-                            <option value="2">2x</option>
-                        </select>
+                </div>
+                
+                <h3 class="category-title">Popular Series</h3>
+                <div class="content-grid" id="popular-series">
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
                     </div>
                 </div>
                 
-                <div class="status">
-                    <p id="player-status">Ready to play video</p>
+                <h3 class="category-title">Latest Releases</h3>
+                <div class="content-grid" id="latest-releases">
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                    </div>
                 </div>
             </div>
             
-            <div class="content-section">
-                <h2>UHD Movies Library</h2>
-                
-                <div class="search-box">
-                    <input type="text" id="search-input" placeholder="Search for movies...">
-                    <button id="search-btn"><i class="fas fa-search"></i></button>
+            <div class="tab-content" id="search-content">
+                <div id="search-results">
+                    <div class="empty-message">Use the search bar to find movies and series</div>
                 </div>
-                
-                <div class="categories">
-                    <div class="category active">All</div>
-                    <div class="category">Action</div>
-                    <div class="category">Comedy</div>
-                    <div class="category">Drama</div>
-                    <div class="category">Sci-Fi</div>
-                    <div class="category">Horror</div>
+            </div>
+            
+            <div class="tab-content" id="history-content">
+                <div id="history-items">
+                    <div class="empty-message">No history yet. Videos you play will appear here.</div>
                 </div>
-                
-                <div class="loading">
-                    <div class="spinner"></div>
-                </div>
-                <div class="video-list" id="video-list">
-                    <!-- Video items will be populated here -->
+            </div>
+            
+            <div class="tab-content" id="saved-content">
+                <div id="saved-items">
+                    <div class="empty-message">No saved links yet. Use the save button to add videos.</div>
                 </div>
             </div>
         </div>
-        
-        <footer>
-            <p>UHD Movies Video Player &copy; 2023 | Powered by Firebase</p>
-            <div class="firebase-badge">
-                <i class="fas fa-database"></i>
-                <span>Firebase Integrated Cloud Storage</span>
-            </div>
-        </footer>
+    </div>
+    
+    <div class="footer">
+        &copy; 2025 UHD Movies TV Player. This content is provided for educational purposes only.
     </div>
 
     <script>
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyDin-ueMfhRwZ7EOWrpYRbyhTcvtm-xZ6s",
-            authDomain: "dias-aea74.firebaseapp.com",
-            projectId: "dias-aea74",
-            storageBucket: "dias-aea74.firebasestorage.app",
-            messagingSenderId: "261547908584",
-            appId: "1:261547908584:web:809d448f6b35a1b0f7985d",
-            measurementId: "G-WQ2ZXZX0VV"
-        };
-        
-        // In a real application, you would initialize Firebase here
-        // For this example, we'll simulate the functionality
-        
-        // DOM elements
-        const videoPlayer = document.getElementById('video-player');
-        const playBtn = document.getElementById('play-btn');
-        const pauseBtn = document.getElementById('pause-btn');
-        const muteBtn = document.getElementById('mute-btn');
-        const fullscreenBtn = document.getElementById('fullscreen-btn');
-        const volumeSlider = document.getElementById('volume-slider');
-        const speedSelect = document.getElementById('speed-select');
-        const progressBar = document.getElementById('progress-bar');
-        const progressContainer = document.getElementById('progress-container');
-        const currentTimeEl = document.getElementById('current-time');
-        const durationEl = document.getElementById('duration');
-        const playerStatus = document.getElementById('player-status');
-        const videoList = document.getElementById('video-list');
-        const searchInput = document.getElementById('search-input');
-        const searchBtn = document.getElementById('search-btn');
-        const categories = document.querySelectorAll('.category');
-        
-        // Mock video data (in a real app, this would come from UHDMovies and Firebase)
-        const videoSources = [
-            {
-                title: "The Midnight Adventure",
-                duration: "2h 15m",
-                url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
-                thumb: "🌙",
-                category: "Adventure",
-                quality: "4K",
-                size: "4.2GB"
-            },
-            {
-                title: "Cosmic Journey",
-                duration: "1h 48m",
-                url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-                thumb: "🚀",
-                category: "Sci-Fi",
-                quality: "1080p",
-                size: "2.8GB"
-            },
-            {
-                title: "Laugh Out Loud",
-                duration: "1h 35m",
-                url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
-                thumb: "😂",
-                category: "Comedy",
-                quality: "4K",
-                size: "3.5GB"
-            },
-            {
-                title: "Dark Shadows",
-                duration: "2h 05m",
-                url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
-                thumb: "🦇",
-                category: "Horror",
-                quality: "1080p",
-                size: "2.9GB"
-            },
-            {
-                title: "The Last Stand",
-                duration: "2h 22m",
-                url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
-                thumb: "💥",
-                category: "Action",
-                quality: "4K",
-                size: "5.1GB"
-            },
-            {
-                title: "Emotional Strings",
-                duration: "1h 52m",
-                url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
-                thumb: "🎻",
-                category: "Drama",
-                quality: "1080p",
-                size: "3.2GB"
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get elements
+            const videoPlayer = document.getElementById('video-player');
+            const videoUrl = document.getElementById('video-url');
+            const loadBtn = document.getElementById('load-btn');
+            const playPauseBtn = document.getElementById('play-pause');
+            const stopBtn = document.getElementById('stop');
+            const rewindBtn = document.getElementById('rewind');
+            const forwardBtn = document.getElementById('forward');
+            const muteBtn = document.getElementById('mute');
+            const volumeSlider = document.getElementById('volume');
+            const fullscreenBtn = document.getElementById('fullscreen');
+            const progressContainer = document.getElementById('progress-container');
+            const progressBar = document.getElementById('progress-bar');
+            const currentTimeEl = document.getElementById('current-time');
+            const totalTimeEl = document.getElementById('total-time');
+            const resumeOption = document.getElementById('resume-option');
+            const resumeYes = document.getElementById('resume-yes');
+            const resumeNo = document.getElementById('resume-no');
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            const historyItems = document.getElementById('history-items');
+            const savedItems = document.getElementById('saved-items');
+            const searchInput = document.getElementById('search-input');
+            const searchBtn = document.getElementById('search-btn');
+            const searchContent = document.getElementById('search-content');
+            const searchResults = document.getElementById('search-results');
+            const featuredMovies = document.getElementById('featured-movies');
+            const popularSeries = document.getElementById('popular-series');
+            const latestReleases = document.getElementById('latest-releases');
+            
+            // Initialize data
+            let history = JSON.parse(localStorage.getItem('videoHistory')) || [];
+            let savedLinks = JSON.parse(localStorage.getItem('savedLinks')) || [];
+            let currentVideo = null;
+            
+            // Sample content data (in a real app, this would come from an API)
+            const sampleContent = {
+                featuredMovies: [
+                    { id: 1, title: "Avengers: Endgame", year: 2019, rating: "8.4", thumbnail: "https://via.placeholder.com/300x450/333/fff?text=Avengers", type: "movie", url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4" },
+                    { id: 2, title: "The Dark Knight", year: 2008, rating: "9.0", thumbnail: "https://via.placeholder.com/300x450/333/fff?text=Dark+Knight", type: "movie", url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" },
+                    { id: 3, title: "Inception", year: 2010, rating: "8.8", thumbnail: "https://via.placeholder.com/300x450/333/fff?text=Inception", type: "movie", url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4" },
+                    { id: 4, title: "Interstellar", year: 2014, rating: "8.6", thumbnail: "https://via.placeholder.com/300x450/333/fff?text=Interstellar", type: "movie", url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4" },
+                    { id: 5, title: "The Shawshank Redemption", year: 1994, rating: "9.3", thumbnail: "https://via.placeholder.com/300x450/333/fff?text=Shawshank", type: "movie", url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4" }
+                ],
+                popularSeries: [
+                    { id: 101, title: "Breaking Bad", year: 2008, rating: "9.5", thumbnail: "https://via.placeholder.com/300x450/333/fff?text=Breaking+Bad", type: "series", url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4" },
+                    { id: 102, title: "Game of Thrones", year: 2011, rating: "9.2", thumbnail: "https://via.placeholder.com/300x450/333/fff?text=Game+of+Thrones", type: "series", url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4" },
+                    { id: 103, title: "Stranger Things", year: 2016, rating: "8.7", thumbnail: "https://via.placeholder.com/300x450/333/fff?text=Stranger+Things", type: "series", url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" },
+                    { id: 104, title: "The Mandalorian", year: 2019, rating: "8.8", thumbnail: "https://via.placeholder.com/300x450/333/fff?text=Mandalorian", type: "series", url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4" },
+                    { id: 105, title: "The Crown", year: 2016, rating: "8.6", thumbnail: "https://via.placeholder.com/300x450/333/fff?text=The+Crown", type: "series", url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4" }
+                ],
+                latestReleases: [
+                    { id: 201, title: "Dune", year: 2021, rating: "8.0", thumbnail: "https://via.placeholder.com/300x450/333/fff?text=Dune", type: "movie", url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4" },
+                    { id: 202, title: "No Time To Die", year: 2021, rating: "7.3", thumbnail: "https://via.placeholder.com/300x450/333/fff?text=No+Time+To+Die", type: "movie", url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4" },
+                    { id: 203, title: "The Batman", year: 2022, rating: "7.9", thumbnail: "https://via.placeholder.com/300x450/333/fff?text=The+Batman", type: "movie", url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4" },
+                    { id: 204, title: "Loki", year: 2021, rating: "8.2", thumbnail: "https://via.placeholder.com/300x450/333/fff?text=Loki", type: "series", url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" },
+                    { id: 205, title: "Squid Game", year: 2021, rating: "8.0", thumbnail: "https://via.placeholder.com/300x450/333/fff?text=Squid+Game", type: "series", url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4" }
+                ]
+            };
+            
+            // Load data from localStorage
+            function loadData() {
+                updateHistoryDisplay();
+                updateSavedDisplay();
+                loadSampleContent();
             }
-        ];
-        
-        // Initialize video player
-        function initPlayer() {
-            // Set initial volume
-            videoPlayer.volume = volumeSlider.value;
             
-            // Event listeners for buttons
-            playBtn.addEventListener('click', () => {
-                videoPlayer.play();
-                playerStatus.textContent = "Playing...";
-                playBtn.innerHTML = '<i class="fas fa-play"></i> Playing';
-            });
-            
-            pauseBtn.addEventListener('click', () => {
-                videoPlayer.pause();
-                playerStatus.textContent = "Paused";
-                playBtn.innerHTML = '<i class="fas fa-play"></i> Play';
-            });
-            
-            muteBtn.addEventListener('click', () => {
-                videoPlayer.muted = !videoPlayer.muted;
-                muteBtn.innerHTML = videoPlayer.muted ? 
-                    '<i class="fas fa-volume-mute"></i> Unmute' : 
-                    '<i class="fas fa-volume-up"></i> Mute';
-                playerStatus.textContent = videoPlayer.muted ? "Sound muted" : "Sound unmuted";
-            });
-            
-            fullscreenBtn.addEventListener('click', () => {
-                if (videoPlayer.requestFullscreen) {
-                    videoPlayer.requestFullscreen();
-                } else if (videoPlayer.webkitRequestFullscreen) {
-                    videoPlayer.webkitRequestFullscreen();
-                } else if (videoPlayer.msRequestFullscreen) {
-                    videoPlayer.msRequestFullscreen();
-                }
-            });
-            
-            volumeSlider.addEventListener('input', () => {
-                videoPlayer.volume = volumeSlider.value;
-                playerStatus.textContent = `Volume set to ${Math.round(volumeSlider.value * 100)}%`;
-            });
-            
-            speedSelect.addEventListener('change', () => {
-                videoPlayer.playbackRate = parseFloat(speedSelect.value);
-                playerStatus.textContent = `Playback speed: ${speedSelect.value}x`;
-            });
-            
-            // Progress bar
-            videoPlayer.addEventListener('timeupdate', () => {
-                const percent = (videoPlayer.currentTime / videoPlayer.duration) * 100;
-                progressBar.style.width = `${percent}%`;
-                currentTimeEl.textContent = formatTime(videoPlayer.currentTime);
-            });
-            
-            progressContainer.addEventListener('click', (e) => {
-                const pos = (e.pageX - progressContainer.offsetLeft) / progressContainer.offsetWidth;
-                videoPlayer.currentTime = pos * videoPlayer.duration;
-            });
-            
-            // Video player events
-            videoPlayer.addEventListener('loadedmetadata', () => {
-                durationEl.textContent = formatTime(videoPlayer.duration);
-            });
-            
-            videoPlayer.addEventListener('loadeddata', () => {
-                playerStatus.textContent = "Video loaded successfully";
-                document.querySelector('.loading').style.display = 'none';
-            });
-            
-            videoPlayer.addEventListener('error', () => {
-                playerStatus.textContent = "Error loading video";
-            });
-            
-            // Load the first video by default
-            if (videoSources.length > 0) {
-                loadVideo(videoSources[0]);
+            // Load sample content
+            function loadSampleContent() {
+                featuredMovies.innerHTML = '';
+                sampleContent.featuredMovies.forEach(movie => featuredMovies.appendChild(createContentCard(movie)));
+                popularSeries.innerHTML = '';
+                sampleContent.popularSeries.forEach(series => popularSeries.appendChild(createContentCard(series)));
+                latestReleases.innerHTML = '';
+                sampleContent.latestReleases.forEach(release => latestReleases.appendChild(createContentCard(release)));
             }
-        }
-        
-        // Format time in minutes and seconds
-        function formatTime(seconds) {
-            const mins = Math.floor(seconds / 60);
-            const secs = Math.floor(seconds % 60);
-            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-        }
-        
-        // Load a video into the player
-        function loadVideo(video) {
-            videoPlayer.src = video.url;
-            videoPlayer.load();
-            playerStatus.textContent = `Loading: ${video.title}`;
-            document.querySelector('h2').innerHTML = `Now Playing: <span style="color: #ff5722">${video.title}</span>`;
-        }
-        
-        // Populate video list
-        function populateVideoList(videos = videoSources) {
-            videoList.innerHTML = '';
             
-            videos.forEach(video => {
-                const videoItem = document.createElement('div');
-                videoItem.className = 'video-item';
-                videoItem.innerHTML = `
-                    <div class="video-thumb">
-                        ${video.thumb}
-                        <div class="video-duration">${video.duration}</div>
-                    </div>
-                    <div class="video-info">
-                        <div class="video-title">${video.title}</div>
-                        <div class="video-meta">
-                            <span>${video.quality}</span>
-                            <span>${video.category}</span>
-                        </div>
+            // Create content card
+            function createContentCard(item) {
+                const card = document.createElement('div');
+                card.className = 'content-card';
+                card.setAttribute('data-url', item.url);
+                card.setAttribute('data-title', item.title);
+                
+                card.innerHTML = `
+                    <img src="${item.thumbnail}" alt="${item.title}" class="content-thumb">
+                    <div class="content-info">
+                        <div class="content-title">${item.title}</div>
+                        <div class="content-meta">${item.year} • ${item.rating}/10 • ${item.type}</div>
                     </div>
                 `;
                 
-                videoItem.addEventListener('click', () => {
-                    document.querySelector('.loading').style.display = 'flex';
-                    loadVideo(video);
-                    // Simulate loading time
-                    setTimeout(() => {
-                        videoPlayer.play();
-                        playBtn.innerHTML = '<i class="fas fa-play"></i> Playing';
-                    }, 1000);
+                card.addEventListener('click', () => {
+                    videoUrl.value = item.url;
+                    loadVideo(item.url, item.title);
                 });
                 
-                videoList.appendChild(videoItem);
+                return card;
+            }
+            
+            // Search function
+            function performSearch(query) {
+                if (!query.trim()) {
+                    searchResults.innerHTML = '<div class="empty-message">Please enter a search term</div>';
+                    return;
+                }
+                
+                searchResults.innerHTML = '<div class="loading"><div class="loading-spinner"></div></div>';
+                
+                setTimeout(() => {
+                    const results = [];
+                    const lowerQuery = query.toLowerCase();
+                    
+                    Object.values(sampleContent).flat().forEach(item => {
+                        if (item.title.toLowerCase().includes(lowerQuery) && !results.some(r => r.id === item.id)) {
+                            results.push(item);
+                        }
+                    });
+                    
+                    if (results.length > 0) {
+                        searchResults.innerHTML = '';
+                        results.forEach(item => searchResults.appendChild(createContentCard(item)));
+                    } else {
+                        searchResults.innerHTML = `<div class="empty-message">No results found for "${query}"</div>`;
+                    }
+                }, 800);
+            }
+            
+            // Update history display
+            function updateHistoryDisplay() {
+                if (history.length === 0) {
+                    historyItems.innerHTML = '<div class="empty-message">No history yet. Videos you play will appear here.</div>';
+                    return;
+                }
+                
+                historyItems.innerHTML = '';
+                history.slice().reverse().forEach((item, index) => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'history-item';
+                    const videoName = item.name || item.url.split('/').pop() || `Video ${history.length - index}`;
+                    const date = new Date(item.date).toLocaleString();
+                    
+                    historyItem.innerHTML = `
+                        <div>
+                            <div>${videoName}</div>
+                            <div style="font-size: 12px; color: #aaa;">${date}</div>
+                        </div>
+                        <div class="item-actions">
+                            <button class="item-btn play-history" data-url="${item.url}" data-name="${videoName}" title="Play"><i class="fas fa-play"></i></button>
+                            <button class="item-btn save-history" data-url="${item.url}" data-name="${videoName}" title="Save"><i class="fas fa-bookmark"></i></button>
+                            <button class="item-btn delete-history" data-index="${history.length - 1 - index}" title="Delete"><i class="fas fa-trash"></i></button>
+                        </div>
+                    `;
+                    historyItems.appendChild(historyItem);
+                });
+                
+                addEventListenersToItems('.play-history', e => {
+                    const { url, name } = e.currentTarget.dataset;
+                    videoUrl.value = url;
+                    loadVideo(url, name);
+                });
+                addEventListenersToItems('.save-history', e => {
+                    const { url, name } = e.currentTarget.dataset;
+                    saveLink(url, name);
+                });
+                addEventListenersToItems('.delete-history', e => {
+                    deleteHistoryItem(parseInt(e.currentTarget.dataset.index));
+                });
+            }
+            
+            // Update saved links display
+            function updateSavedDisplay() {
+                if (savedLinks.length === 0) {
+                    savedItems.innerHTML = '<div class="empty-message">No saved links yet. Use the save button to add videos.</div>';
+                    return;
+                }
+                
+                savedItems.innerHTML = '';
+                savedLinks.slice().reverse().forEach((item, index) => {
+                    const savedItem = document.createElement('div');
+                    savedItem.className = 'saved-item';
+                    const videoName = item.name || item.url.split('/').pop() || `Video ${savedLinks.length - index}`;
+                    
+                    savedItem.innerHTML = `
+                        <div>${videoName}</div>
+                        <div class="item-actions">
+                            <button class="item-btn play-saved" data-url="${item.url}" data-name="${videoName}" title="Play"><i class="fas fa-play"></i></button>
+                            <button class="item-btn delete-saved" data-index="${savedLinks.length - 1 - index}" title="Delete"><i class="fas fa-trash"></i></button>
+                        </div>
+                    `;
+                    savedItems.appendChild(savedItem);
+                });
+                
+                addEventListenersToItems('.play-saved', e => {
+                    const { url, name } = e.currentTarget.dataset;
+                    videoUrl.value = url;
+                    loadVideo(url, name);
+                });
+                addEventListenersToItems('.delete-saved', e => {
+                    deleteSavedItem(parseInt(e.currentTarget.dataset.index));
+                });
+            }
+
+            function addEventListenersToItems(selector, callback) {
+                document.querySelectorAll(selector).forEach(btn => btn.addEventListener('click', callback));
+            }
+            
+            function deleteHistoryItem(index) {
+                history.splice(index, 1);
+                localStorage.setItem('videoHistory', JSON.stringify(history));
+                updateHistoryDisplay();
+            }
+            
+            function deleteSavedItem(index) {
+                savedLinks.splice(index, 1);
+                localStorage.setItem('savedLinks', JSON.stringify(savedLinks));
+                updateSavedDisplay();
+            }
+            
+            function saveLink(url, name) {
+                if (savedLinks.some(item => item.url === url)) {
+                    alert('This video is already in your saved list!');
+                    return;
+                }
+                savedLinks.push({ url, name, date: new Date().toISOString() });
+                localStorage.setItem('savedLinks', JSON.stringify(savedLinks));
+                updateSavedDisplay();
+                alert('Video saved to your list!');
+            }
+            
+            function addToHistory(url, name) {
+                history = history.filter(item => item.url !== url);
+                history.push({ url, name, date: new Date().toISOString() });
+                if (history.length > 20) history = history.slice(history.length - 20);
+                localStorage.setItem('videoHistory', JSON.stringify(history));
+                updateHistoryDisplay();
+            }
+            
+            function loadVideo(url, name = '') {
+                const savedPosition = localStorage.getItem(`videoPosition_${url}`);
+                currentVideo = { url, name };
+                if (savedPosition && savedPosition > 10) {
+                    resumeOption.style.display = 'block';
+                } else {
+                    playVideoFrom(0);
+                }
+            }
+
+            function playVideoFrom(startTime) {
+                videoPlayer.src = currentVideo.url;
+                videoPlayer.load();
+                videoPlayer.currentTime = startTime;
+                videoPlayer.play().catch(e => {
+                    console.error("Playback failed:", e);
+                    alert("Failed to play video. Please check the URL or try another video.");
+                });
+                addToHistory(currentVideo.url, currentVideo.name);
+            }
+            
+            function formatTime(seconds) {
+                const mins = Math.floor(seconds / 60);
+                const secs = Math.floor(seconds % 60);
+                return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+            }
+
+            function updatePlayPauseIcon(paused) {
+                const icon = playPauseBtn.querySelector('i');
+                icon.classList.toggle('fa-play', paused);
+                icon.classList.toggle('fa-pause', !paused);
+            }
+            
+            // Event listeners
+            loadBtn.addEventListener('click', () => {
+                if (videoUrl.value) loadVideo(videoUrl.value);
             });
             
-            // Hide loading spinner
-            document.querySelector('.loading').style.display = 'none';
-        }
-        
-        // Initialize the application
-        function initApp() {
-            initPlayer();
-            populateVideoList();
+            const handleSearch = () => {
+                performSearch(searchInput.value);
+                tabs.forEach(tab => tab.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+                document.querySelector('[data-tab="search"]').classList.add('active');
+                document.getElementById('search-content').classList.add('active');
+            };
+            searchBtn.addEventListener('click', handleSearch);
+            searchInput.addEventListener('keypress', e => {
+                if (e.key === 'Enter') handleSearch();
+            });
             
-            // Add event listeners for search and categories
-            searchBtn.addEventListener('click', () => {
-                const searchTerm = searchInput.value.toLowerCase();
-                if (searchTerm) {
-                    const filteredVideos = videoSources.filter(video => 
-                        video.title.toLowerCase().includes(searchTerm) ||
-                        video.category.toLowerCase().includes(searchTerm)
-                    );
-                    populateVideoList(filteredVideos);
-                    playerStatus.textContent = `Found ${filteredVideos.length} videos for "${searchTerm}"`;
+            resumeYes.addEventListener('click', () => {
+                const savedPosition = localStorage.getItem(`videoPosition_${currentVideo.url}`);
+                playVideoFrom(parseFloat(savedPosition));
+                resumeOption.style.display = 'none';
+            });
+            
+            resumeNo.addEventListener('click', () => {
+                playVideoFrom(0);
+                localStorage.removeItem(`videoPosition_${currentVideo.url}`);
+                resumeOption.style.display = 'none';
+            });
+            
+            playPauseBtn.addEventListener('click', () => {
+                videoPlayer.paused ? videoPlayer.play() : videoPlayer.pause();
+            });
+
+            stopBtn.addEventListener('click', () => {
+                videoPlayer.pause();
+                videoPlayer.currentTime = 0;
+            });
+
+            rewindBtn.addEventListener('click', () => videoPlayer.currentTime -= 10);
+            forwardBtn.addEventListener('click', () => videoPlayer.currentTime += 10);
+
+            videoPlayer.addEventListener('play', () => updatePlayPauseIcon(false));
+            videoPlayer.addEventListener('pause', () => updatePlayPauseIcon(true));
+
+            videoPlayer.addEventListener('timeupdate', () => {
+                const progress = (videoPlayer.currentTime / videoPlayer.duration) * 100;
+                progressBar.style.width = `${progress}%`;
+                currentTimeEl.textContent = formatTime(videoPlayer.currentTime);
+                if (videoPlayer.src) {
+                   localStorage.setItem(`videoPosition_${videoPlayer.src}`, videoPlayer.currentTime);
                 }
             });
-            
-            categories.forEach(category => {
-                category.addEventListener('click', () => {
-                    categories.forEach(cat => cat.classList.remove('active'));
-                    category.classList.add('active');
-                    
-                    const categoryName = category.textContent;
-                    if (categoryName === 'All') {
-                        populateVideoList();
-                        playerStatus.textContent = "Showing all videos";
-                    } else {
-                        const filteredVideos = videoSources.filter(video => 
-                            video.category === categoryName
-                        );
-                        populateVideoList(filteredVideos);
-                        playerStatus.textContent = `Showing ${filteredVideos.length} ${categoryName} videos`;
-                    }
+
+            videoPlayer.addEventListener('loadedmetadata', () => {
+                totalTimeEl.textContent = formatTime(videoPlayer.duration);
+            });
+
+            videoPlayer.addEventListener('ended', () => updatePlayPauseIcon(true));
+
+            progressContainer.addEventListener('click', e => {
+                const rect = progressContainer.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                videoPlayer.currentTime = (clickX / rect.width) * videoPlayer.duration;
+            });
+
+            muteBtn.addEventListener('click', () => {
+                videoPlayer.muted = !videoPlayer.muted;
+                const icon = muteBtn.querySelector('i');
+                icon.classList.toggle('fa-volume-up', !videoPlayer.muted);
+                icon.classList.toggle('fa-volume-mute', videoPlayer.muted);
+            });
+
+            volumeSlider.addEventListener('input', e => {
+                videoPlayer.volume = e.target.value;
+                videoPlayer.muted = e.target.value === '0';
+            });
+
+            fullscreenBtn.addEventListener('click', () => {
+                if (document.fullscreenElement) {
+                    document.exitFullscreen();
+                } else {
+                    videoPlayer.parentElement.requestFullscreen().catch(err => {
+                        alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+                    });
+                }
+            });
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    document.getElementById(tab.dataset.tab + '-content').classList.add('active');
                 });
             });
-        }
-        
-        // Start the app when the page is loaded
-        window.addEventListener('DOMContentLoaded', initApp);
+
+            // Initial load
+            loadData();
+        });
     </script>
 </body>
 </html>
