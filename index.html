@@ -1,643 +1,552 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UHDMovies Player & Archive Search</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        :root {
-            --primary: #ff2c4f;
-            --dark-bg: #0f0f0f;
-            --card-bg: #1a1a1a;
-            --text-primary: #ffffff;
-            --text-secondary: #aaaaaa;
-        }
-        
-        body {
-            background: var(--dark-bg);
-            color: var(--text-primary);
-            min-height: 100vh;
-            padding-bottom: 40px;
-        }
-        
-        .container {
-            max-width: 1200px;
-            width: 100%;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid #2a2a2a;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--primary);
-        }
-        
-        .logo i {
-            font-size: 32px;
-        }
-        
-        .search-container {
-            display: flex;
-            background: var(--card-bg);
-            border-radius: 8px;
-            overflow: hidden;
-            flex: 1;
-            max-width: 500px;
-        }
-        
-        .search-input {
-            flex: 1;
-            padding: 12px 15px;
-            background: transparent;
-            border: none;
-            color: var(--text-primary);
-            font-size: 16px;
-        }
-        
-        .search-input:focus {
-            outline: none;
-        }
-        
-        .search-btn {
-            padding: 12px 20px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        
-        .search-btn:hover {
-            background: #ff4368;
-        }
-        
-        .url-input-container {
-            display: flex;
-            margin: 20px 0;
-            gap: 10px;
-        }
-        
-        .url-input {
-            flex: 1;
-            padding: 12px 15px;
-            background: var(--card-bg);
-            border: 1px solid #3a3a3a;
-            border-radius: 4px;
-            color: var(--text-primary);
-            font-size: 16px;
-        }
-        
-        .url-input:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-        
-        .btn {
-            padding: 12px 25px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: background 0.2s;
-        }
-        
-        .btn:hover {
-            background: #ff4368;
-        }
-        
-        .btn:disabled {
-            background: #555;
-            cursor: not-allowed;
-        }
-        
-        .player-container {
-            position: relative;
-            width: 100%;
-            background: #000;
-            border-radius: 8px;
-            overflow: hidden;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        }
-        
-        .video-player {
-            width: 100%;
-            aspect-ratio: 16/9;
-            background: #111;
-        }
-        
-        .player-controls {
-            display: flex;
-            align-items: center;
-            padding: 10px 15px;
-            background: rgba(0, 0, 0, 0.7);
-            gap: 15px;
-        }
-        
-        .control-btn {
-            background: none;
-            border: none;
-            color: var(--text-primary);
-            font-size: 18px;
-            cursor: pointer;
-            padding: 5px;
-        }
-        
-        .progress-container {
-            flex: 1;
-            height: 5px;
-            background: #555;
-            border-radius: 5px;
-            overflow: hidden;
-            cursor: pointer;
-        }
-        
-        .progress-bar {
-            height: 100%;
-            background: var(--primary);
-            width: 0%;
-        }
-        
-        .volume-container {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .volume-slider {
-            width: 80px;
-        }
-        
-        .quality-selector {
-            padding: 8px 12px;
-            background: #2a2a2a;
-            color: white;
-            border: 1px solid #3a3a3a;
-            border-radius: 4px;
-        }
-        
-        .status {
-            padding: 15px;
-            background: var(--card-bg);
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-        
-        .status.error {
-            background: #4a1a1a;
-            color: #ff6b6b;
-        }
-        
-        .status.success {
-            background: #1a4a2a;
-            color: #6bff8d;
-        }
-        
-        .loader {
-            display: none;
-            text-align: center;
-            padding: 20px;
-        }
-        
-        .loader-spinner {
-            border: 4px solid #2a2a2a;
-            border-top: 4px solid var(--primary);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .search-results {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
-        }
-        
-        .movie-card {
-            background: var(--card-bg);
-            border-radius: 8px;
-            overflow: hidden;
-            transition: transform 0.3s;
-            cursor: pointer;
-        }
-        
-        .movie-card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .movie-thumb {
-            width: 100%;
-            aspect-ratio: 16/9;
-            object-fit: cover;
-        }
-        
-        .movie-info {
-            padding: 15px;
-        }
-        
-        .movie-title {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-        
-        .movie-details {
-            display: flex;
-            justify-content: space-between;
-            color: var(--text-secondary);
-            font-size: 14px;
-        }
-        
-        .section-title {
-            font-size: 22px;
-            margin: 30px 0 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #2a2a2a;
-        }
-        
-        footer {
-            margin-top: 50px;
-            text-align: center;
-            padding: 20px;
-            color: #555;
-            font-size: 14px;
-        }
-        
-        @media (max-width: 768px) {
-            header {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .search-container {
-                max-width: 100%;
-            }
-            
-            .url-input-container {
-                flex-direction: column;
-            }
-            
-            .player-controls {
-                flex-wrap: wrap;
-            }
-            
-            .search-results {
-                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            }
-        }
-    </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CloudStream-like Web Player (Firebase)</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+<style>
+  :root{--bg:#0f1115;--card:#14161a;--accent:#e50914;--muted:#9aa0a6;color-scheme: dark}
+  body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:var(--bg);color:#fff}
+  header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:linear-gradient(90deg,#0b0c0e, #111)}
+  header h1{font-size:18px;margin:0}
+  main{display:grid;grid-template-columns:360px 1fr;gap:18px;padding:18px}
+  /* Left sidebar */
+  .sidebar{background:var(--card);border-radius:10px;padding:12px;min-height:80vh}
+  .section{margin-bottom:12px}
+  input[type="text"], input[type="url"]{width:100%;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.04);background:#0d0d0d;color:#fff}
+  button{background:var(--accent);border:0;padding:8px 10px;border-radius:8px;color:#fff;cursor:pointer}
+  .repo-list{max-height:220px;overflow:auto;margin-top:8px}
+  .repo-item{display:flex;justify-content:space-between;padding:8px;border-radius:6px;background:#0b0b0b;margin-bottom:6px;align-items:center}
+  .small{font-size:13px;color:var(--muted)}
+  /* Center content */
+  .content{display:flex;flex-direction:column;gap:12px}
+  .player-card{background:var(--card);padding:12px;border-radius:10px}
+  video{width:100%;height:460px;background:#000;border-radius:8px;outline:1px solid rgba(255,255,255,0.02)}
+  .controls-row{display:flex;align-items:center;gap:8px;margin-top:8px}
+  .search-bar{display:flex;gap:8px}
+  .results{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+  .tile{background:#0d0d0d;padding:8px;border-radius:8px;overflow:hidden}
+  .tile img{width:100%;height:120px;object-fit:cover;border-radius:6px}
+  .tile h3{font-size:15px;margin:8px 0 4px}
+  .tile p{font-size:13px;color:var(--muted);height:34px;overflow:hidden}
+  .tile .actions{display:flex;gap:6px;margin-top:8px}
+  .badge{display:inline-block;padding:4px 6px;background:#111;border-radius:6px;font-size:12px;color:var(--muted)}
+  footer{padding:12px;text-align:center;color:var(--muted);font-size:13px}
+  .flex{display:flex;gap:8px;align-items:center}
+  .danger{background:#a33}
+  .muted-btn{background:#222;color:var(--muted);border-radius:8px;padding:6px 8px}
+  .small-link{font-size:13px;color:var(--muted);text-decoration:underline;cursor:pointer}
+</style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="logo">
-                <i class="fas fa-play-circle"></i>
-                <span>UHDMovies Player</span>
-            </div>
-            
-            <div class="search-container">
-                <input type="text" class="search-input" id="searchInput" placeholder="Search UHDMovies archive...">
-                <button class="search-btn" id="searchBtn">
-                    <i class="fas fa-search"></i>
-                </button>
-            </div>
-        </header>
-        
-        <div class="url-input-container">
-            <input type="url" class="url-input" placeholder="Paste UHDMovies URL here..." id="videoUrl">
-            <button class="btn" id="extractBtn">Extract Video</button>
-        </div>
-        
-        <div class="status" id="status">Enter a UHDMovies URL and click Extract Video to begin</div>
-        
-        <div class="loader" id="loader">
-            <div class="loader-spinner"></div>
-            <p>Extracting video source, please wait...</p>
-        </div>
-        
-        <div class="player-container">
-            <video class="video-player" id="videoPlayer" controls>
-                Your browser does not support the video tag.
-            </video>
-            
-            <div class="player-controls">
-                <button class="control-btn" id="playBtn">
-                    <i class="fas fa-play"></i>
-                </button>
-                <button class="control-btn" id="pauseBtn">
-                    <i class="fas fa-pause"></i>
-                </button>
-                <div class="progress-container" id="progressContainer">
-                    <div class="progress-bar" id="progressBar"></div>
-                </div>
-                <div class="volume-container">
-                    <button class="control-btn" id="muteBtn">
-                        <i class="fas fa-volume-up"></i>
-                    </button>
-                    <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.1" value="1">
-                </div>
-                <select class="quality-selector" id="qualitySelector" disabled>
-                    <option value="">Quality</option>
-                </select>
-                <button class="control-btn" id="fullscreenBtn">
-                    <i class="fas fa-expand"></i>
-                </button>
-            </div>
-        </div>
-        
-        <button class="btn" id="downloadBtn" disabled style="margin-bottom: 30px;">
-            <i class="fas fa-download"></i> Download Video
-        </button>
-        
-        <h2 class="section-title">Search Results</h2>
-        <div class="search-results" id="searchResults">
-            <!-- Results will be populated here -->
-        </div>
-        
-        <h2 class="section-title">Popular on UHDMovies</h2>
-        <div class="search-results" id="popularMovies">
-            <!-- Popular movies will be populated here -->
-        </div>
-    </div>
-    
-    <footer>
-        <p>Note: This is a frontend demonstration. Actual video extraction requires server-side processing.</p>
-        <p>Always respect copyright laws and terms of service when accessing online content.</p>
-    </footer>
+<header>
+  <h1>CloudStream-like Player</h1>
+  <div class="flex">
+    <div class="small muted-btn" id="user-status">Not signed in</div>
+    <button id="sign-out" style="display:none;background:#333">Sign out</button>
+  </div>
+</header>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Elements
-            const videoUrlInput = document.getElementById('videoUrl');
-            const extractBtn = document.getElementById('extractBtn');
-            const videoPlayer = document.getElementById('videoPlayer');
-            const statusEl = document.getElementById('status');
-            const loader = document.getElementById('loader');
-            const qualitySelector = document.getElementById('qualitySelector');
-            const downloadBtn = document.getElementById('downloadBtn');
-            const searchInput = document.getElementById('searchInput');
-            const searchBtn = document.getElementById('searchBtn');
-            const searchResults = document.getElementById('searchResults');
-            const popularMovies = document.getElementById('popularMovies');
-            const playBtn = document.getElementById('playBtn');
-            const pauseBtn = document.getElementById('pauseBtn');
-            const muteBtn = document.getElementById('muteBtn');
-            const volumeSlider = document.getElementById('volumeSlider');
-            const progressContainer = document.getElementById('progressContainer');
-            const progressBar = document.getElementById('progressBar');
-            const fullscreenBtn = document.getElementById('fullscreenBtn');
-            
-            // Demo data
-            const demoVideoSources = [
-                { quality: '4K UHD', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4' },
-                { quality: '1080p', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4' },
-                { quality: '720p', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4' }
-            ];
-            
-            const demoMovies = [
-                { title: 'Avatar: The Way of Water', year: 2022, rating: '8.2', duration: '3h 12m', thumb: 'https://m.media-amazon.com/images/M/MV5BYjhiNjBlODctY2ZiOC00YjVlLWFlNzQtN2I2NDYzMmQyZGFjXkEyXkFqcGdeQXVyMjMwNDgzNjc@._V1_FMjpg_UX1000_.jpg' },
-                { title: 'John Wick: Chapter 4', year: 2023, rating: '8.5', duration: '2h 49m', thumb: 'https://m.media-amazon.com/images/M/MV5BMDExZGMyOTMtMDgyYi00NGIwLWJhMTEtOTdkZGFjNmZiMTEwXkEyXkFqcGdeQXVyMjMwNDgzNjc@._V1_FMjpg_UX1000_.jpg' },
-                { title: 'Oppenheimer', year: 2023, rating: '8.8', duration: '3h 00m', thumb: 'https://m.media-amazon.com/images/M/MV5BMDBmYTZjNjUtN2M1MS00MTQ2LTk2ODgtNzc2M2QyZGE5NTVjXkEyXkFqcGdeQXVyNzAwMjU2MTY@._V1_FMjpg_UX1000_.jpg' },
-                { title: 'The Batman', year: 2022, rating: '8.3', duration: '2h 56m', thumb: 'https://m.media-amazon.com/images/M/MV5BMDdmMTBiNTYtMDIzNi00NGVlLWIzMDYtZTk3MTQ3NGQxZGEwXkEyXkFqcGdeQXVyMzMwOTU5MDk@._V1_FMjpg_UX1000_.jpg' },
-                { title: 'Dune', year: 2021, rating: '8.4', duration: '2h 35m', thumb: 'https://m.media-amazon.com/images/M/MV5BN2FjNmEyNWMtYzM0ZS00NjIyLTg5YzYtYThlMGVjNzE1OGViXkEyXkFqcGdeQXVyMTkxNjUyNQ@@._V1_FMjpg_UX1000_.jpg' },
-                { title: 'Top Gun: Maverick', year: 2022, rating: '8.6', duration: '2h 10m', thumb: 'https://m.media-amazon.com/images/M/MV5BZWYzOGEwNTgtNWU3NS00ZTQ0LWJkODUtMmVhMjIwMjA1ZmQwXkEyXkFqcGdeQXVyMjkwOTAyMDU@._V1_FMjpg_UX1000_.jpg' }
-            ];
-            
-            // Initialize with popular movies
-            populateMovies(demoMovies, popularMovies);
-            
-            // Simulate extraction process
-            extractBtn.addEventListener('click', function() {
-                const url = videoUrlInput.value.trim();
-                
-                if (!url) {
-                    showStatus('Please enter a valid UHDMovies URL', 'error');
-                    return;
-                }
-                
-                if (!url.includes('uhdmovies.rip')) {
-                    showStatus('Please enter a valid UHDMovies URL from uhdmovies.rip', 'error');
-                    return;
-                }
-                
-                // Show loading state
-                loader.style.display = 'block';
-                showStatus('Extracting video source from UHDMovies...', '');
-                extractBtn.disabled = true;
-                
-                // Simulate extraction delay
-                setTimeout(() => {
-                    // In a real implementation, this would make an API call to a server
-                    // that handles the actual extraction from the website
-                    
-                    // For demo purposes, we'll use sample videos
-                    populateQualityOptions(demoVideoSources);
-                    
-                    // Set the highest quality by default
-                    videoPlayer.src = demoVideoSources[0].url;
-                    videoPlayer.load();
-                    
-                    // Update UI
-                    loader.style.display = 'none';
-                    showStatus('Video source extracted successfully from UHDMovies!', 'success');
-                    downloadBtn.disabled = false;
-                    qualitySelector.disabled = false;
-                }, 2000);
-            });
-            
-            // Handle search
-            searchBtn.addEventListener('click', performSearch);
-            searchInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    performSearch();
-                }
-            });
-            
-            function performSearch() {
-                const query = searchInput.value.trim();
-                
-                if (!query) {
-                    showStatus('Please enter a search term', 'error');
-                    return;
-                }
-                
-                loader.style.display = 'block';
-                showStatus(`Searching UHDMovies for "${query}"...`, '');
-                
-                // Simulate search delay
-                setTimeout(() => {
-                    const filteredMovies = demoMovies.filter(movie => 
-                        movie.title.toLowerCase().includes(query.toLowerCase())
-                    );
-                    
-                    if (filteredMovies.length === 0) {
-                        showStatus(`No results found for "${query}"`, 'error');
-                        searchResults.innerHTML = '<p>No movies found. Try a different search term.</p>';
-                    } else {
-                        showStatus(`Found ${filteredMovies.length} results for "${query}"`, 'success');
-                        populateMovies(filteredMovies, searchResults);
-                    }
-                    
-                    loader.style.display = 'none';
-                }, 1500);
-            }
-            
-            // Handle quality selection
-            qualitySelector.addEventListener('change', function() {
-                const selectedUrl = this.value;
-                if (selectedUrl) {
-                    videoPlayer.src = selectedUrl;
-                    videoPlayer.load();
-                    videoPlayer.play();
-                }
-            });
-            
-            // Handle download button
-            downloadBtn.addEventListener('click', function() {
-                const selectedUrl = qualitySelector.value || videoPlayer.src;
-                if (selectedUrl) {
-                    // In a real implementation, this would trigger the download
-                    window.open(selectedUrl, '_blank');
-                }
-            });
-            
-            // Player controls
-            playBtn.addEventListener('click', function() {
-                videoPlayer.play();
-            });
-            
-            pauseBtn.addEventListener('click', function() {
-                videoPlayer.pause();
-            });
-            
-            muteBtn.addEventListener('click', function() {
-                if (videoPlayer.muted) {
-                    videoPlayer.muted = false;
-                    muteBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
-                } else {
-                    videoPlayer.muted = true;
-                    muteBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
-                }
-            });
-            
-            volumeSlider.addEventListener('input', function() {
-                videoPlayer.volume = this.value;
-                if (videoPlayer.volume == 0) {
-                    muteBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
-                } else {
-                    muteBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
-                }
-            });
-            
-            videoPlayer.addEventListener('timeupdate', function() {
-                const percent = (videoPlayer.currentTime / videoPlayer.duration) * 100;
-                progressBar.style.width = `${percent}%`;
-            });
-            
-            progressContainer.addEventListener('click', function(e) {
-                const pos = (e.pageX - this.offsetLeft) / this.offsetWidth;
-                videoPlayer.currentTime = pos * videoPlayer.duration;
-            });
-            
-            fullscreenBtn.addEventListener('click', function() {
-                if (videoPlayer.requestFullscreen) {
-                    videoPlayer.requestFullscreen();
-                } else if (videoPlayer.webkitRequestFullscreen) {
-                    videoPlayer.webkitRequestFullscreen();
-                } else if (videoPlayer.msRequestFullscreen) {
-                    videoPlayer.msRequestFullscreen();
-                }
-            });
-            
-            // Helper functions
-            function populateQualityOptions(sources) {
-                qualitySelector.innerHTML = '<option value="">Select Quality</option>';
-                
-                sources.forEach(source => {
-                    const option = document.createElement('option');
-                    option.value = source.url;
-                    option.textContent = source.quality;
-                    qualitySelector.appendChild(option);
-                });
-            }
-            
-            function populateMovies(movies, container) {
-                container.innerHTML = '';
-                
-                movies.forEach(movie => {
-                    const card = document.createElement('div');
-                    card.className = 'movie-card';
-                    card.innerHTML = `
-                        <img src="${movie.thumb}" alt="${movie.title}" class="movie-thumb">
-                        <div class="movie-info">
-                            <div class="movie-title">${movie.title}</div>
-                            <div class="movie-details">
-                                <span>${movie.year}</span>
-                                <span>⭐ ${movie.rating}</span>
-                                <span>${movie.duration}</span>
-                            </div>
-                        </div>
-                    `;
-                    
-                    card.addEventListener('click', function() {
-                        videoUrlInput.value = `https://uhdmovies.rip/movies/${movie.title.toLowerCase().replace(/\s+/g, '-')}`;
-                        extractBtn.click();
-                    });
-                    
-                    container.appendChild(card);
-                });
-            }
-            
-            function showStatus(message, type) {
-                statusEl.textContent = message;
-                statusEl.className = 'status';
-                if (type) {
-                    statusEl.classList.add(type);
-                }
-            }
-            
-            // Handle video player events
-            videoPlayer.addEventListener('loadeddata', function() {
-                showStatus('Video loaded successfully', 'success');
-            });
-            
-            videoPlayer.addEventListener('error', function() {
-                showStatus('Error loading video', 'error');
-            });
-        });
-    </script>
+<main>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="section">
+      <h3>Add Repository</h3>
+      <div class="small">Enter a JSON endpoint that returns an array of media items</div>
+      <input id="repo-url" type="url" placeholder="https://example.com/repo.json" />
+      <div style="display:flex;gap:6px;margin-top:8px">
+        <button id="add-repo">Add Repo</button>
+        <button id="add-sample" class="muted-btn">Add Sample Repo</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Repositories</h3>
+      <div class="repo-list" id="repo-list"></div>
+    </div>
+
+    <div class="section">
+      <h3>Saved & History</h3>
+      <div style="display:flex;gap:6px">
+        <button id="view-saved" class="muted-btn">Saved</button>
+        <button id="view-history" class="muted-btn">History</button>
+      </div>
+      <div id="saved-history-list" style="margin-top:8px;max-height:220px;overflow:auto"></div>
+    </div>
+
+    <div class="section small">
+      <strong>Repo JSON format</strong><br/>
+      Each repo should return an array of items: <code>[{title,description,poster,sources:[{label,url,subtitles:[{lang,label,vtt}]}]}]</code>
+      <div style="margin-top:8px;color:var(--muted)">Only add sources you have rights to. This app does not index websites or scrape content.</div>
+    </div>
+  </aside>
+
+  <!-- Content -->
+  <section class="content">
+    <div class="player-card">
+      <video id="video-player" controls crossorigin="anonymous" preload="metadata"></video>
+
+      <div class="controls-row">
+        <div class="search-bar" style="flex:1">
+          <input id="global-search" type="text" placeholder="Search title / description across repos..." />
+          <button id="search-btn">Search</button>
+        </div>
+
+        <div class="flex">
+          <select id="audio-select"><option value="">Audio tracks</option></select>
+          <select id="subtitle-select"><option value="">Subtitles</option></select>
+          <button id="save-link" class="muted-btn">Save</button>
+        </div>
+      </div>
+
+    </div>
+
+    <div id="results-area">
+      <div class="results" id="results"></div>
+    </div>
+
+  </section>
+</main>
+
+<footer>
+  Built for personal use. Use only legal sources. Firebase: saves repos, saved links, history.
+</footer>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
+<script>
+/* ============================
+   Firebase config - your project
+   (Using the project you provided earlier)
+   ============================ */
+const firebaseConfig = {
+  apiKey: "AIzaSyDin-ueMfhRwZ7EOWrpYRbyhTcvtm-xZ6s",
+  authDomain: "dias-aea74.firebaseapp.com",
+  projectId: "dias-aea74",
+  storageBucket: "dias-aea74.firebasestorage.app",
+  messagingSenderId: "261547908584",
+  appId: "1:261547908584:web:809d448f6b35a1b0f7985d",
+  measurementId: "G-WQ2ZXZX0VV"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+firebase.auth().signInAnonymously().catch(console.error);
+
+/* ===============
+   App state
+   =============== */
+const repoListEl = document.getElementById('repo-list');
+const resultsEl = document.getElementById('results');
+const savedHistoryList = document.getElementById('saved-history-list');
+const player = document.getElementById('video-player');
+const addRepoBtn = document.getElementById('add-repo');
+const addSampleBtn = document.getElementById('add-sample');
+const repoUrlInput = document.getElementById('repo-url');
+const globalSearch = document.getElementById('global-search');
+const searchBtn = document.getElementById('search-btn');
+const saveLinkBtn = document.getElementById('save-link');
+const audioSelect = document.getElementById('audio-select');
+const subtitleSelect = document.getElementById('subtitle-select');
+const viewSavedBtn = document.getElementById('view-saved');
+const viewHistoryBtn = document.getElementById('view-history');
+const userStatus = document.getElementById('user-status');
+const signOutBtn = document.getElementById('sign-out');
+
+let localRepos = [];   // array of {id, url, title}
+let index = [];        // global index of media items
+let savedLinks = [];   // from Firestore
+let history = JSON.parse(localStorage.getItem('cs_history')||'[]');
+let currentItem = null;
+
+/* ===============
+   Utility / UI
+   =============== */
+function uid(len=8){ return Math.random().toString(36).slice(2,2+len); }
+function show(msg){ alert(msg); }
+
+function renderRepos(){
+  repoListEl.innerHTML = '';
+  if(localRepos.length===0){ repoListEl.innerHTML = '<div class="small">No repos. Add one.</div>'; return; }
+  localRepos.forEach((r, idx) => {
+    const el = document.createElement('div');
+    el.className = 'repo-item';
+    el.innerHTML = `<div>
+                      <div style="font-weight:600">${r.title || r.url}</div>
+                      <div class="small">${r.url}</div>
+                    </div>
+                    <div style="display:flex;gap:6px">
+                      <button class="muted-btn" data-idx="${idx}" onclick="fetchRepoIndex(${idx})">Refresh</button>
+                      <button class="muted-btn" data-idx="${idx}" onclick="removeRepo(${idx})">Remove</button>
+                    </div>`;
+    repoListEl.appendChild(el);
+  });
+}
+
+function renderResults(list){
+  resultsEl.innerHTML = '';
+  if(!list || list.length===0){ resultsEl.innerHTML = '<div class="small">No results</div>'; return; }
+  list.forEach(item => {
+    const tile = document.createElement('div');
+    tile.className = 'tile';
+    tile.innerHTML = `
+      <img src="${item.poster || ''}" onerror="this.style.opacity=.5;this.style.objectFit='contain'"/>
+      <h3>${item.title}</h3>
+      <p>${item.description || ''}</p>
+      <div class="actions">
+        ${item.sources && item.sources.length ? item.sources.map((s, i) =>
+          `<button onclick='playSource(${JSON.stringify(escapeQuotes(item.title))}, ${JSON.stringify(i)}, ${JSON.stringify(item)})'>Play: ${s.label||'source '+(i+1)}</button>`).join('') : '<span class="badge">No sources</span>'}
+        <button class="muted-btn" onclick='saveItem(${JSON.stringify(item.title)}, ${JSON.stringify(item)})'>Save</button>
+      </div>
+    `;
+    resultsEl.appendChild(tile);
+  });
+}
+
+// helper to avoid breaking quotes when embedding JSON in onclick
+function escapeQuotes(s){ return String(s).replaceAll("'", "\\'").replaceAll('"', '\\"'); }
+
+/* ===============
+   Repo handling
+   =============== */
+async function loadSavedReposFromFirestore(){
+  try{
+    const snap = await db.collection('repos').get();
+    localRepos = snap.docs.map(d => ({id: d.id, ...d.data()}));
+    renderRepos();
+    // fetch each repo's index
+    await Promise.all(localRepos.map((_,i)=>fetchRepoIndex(i).catch(()=>{})));
+  }catch(e){
+    // no repos yet or offline
+    console.log('loadSavedRepos', e);
+  }
+}
+
+async function addRepo(url){
+  // Basic validation: must be http/https
+  if(!url || !/^https?:\/\//i.test(url)) return show('Enter a valid https URL');
+  // Try fetch and validate JSON
+  try{
+    const r = await fetch(url, {cache:'no-cache'});
+    if(!r.ok) throw new Error('Fetch failed: '+r.status);
+    const data = await r.json();
+    if(!Array.isArray(data)) throw new Error('Repo JSON must be an array of items');
+    const title = (data && data[0] && data[0].title) ? (data[0].title + '...') : url;
+    // Save to Firestore
+    const doc = await db.collection('repos').add({url, title, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
+    localRepos.push({id: doc.id, url, title});
+    renderRepos();
+    // Immediately index
+    await fetchRepoIndex(localRepos.length-1);
+    show('Repo added and indexed');
+  }catch(e){
+    console.error(e);
+    show('Failed to add repo: ' + (e.message || e));
+  }
+}
+
+async function fetchRepoIndex(idx){
+  const repo = localRepos[idx];
+  if(!repo) return;
+  try{
+    const res = await fetch(repo.url, {cache:'no-cache'});
+    if(!res.ok) throw new Error('Fetch failed');
+    const arr = await res.json();
+    if(!Array.isArray(arr)) throw new Error('Repo returned non-array JSON');
+    // Attach repo meta
+    arr.forEach(item => item._repo = {url: repo.url, id: repo.id});
+    // merge into global index (dedupe by title+url)
+    const merged = [];
+    const keySet = new Set();
+    index = index.filter(it => it._repo && it._repo.id !== repo.id); // remove old items from this repo
+    index = index.concat(arr);
+    renderResults(index.slice(0,50));
+  }catch(e){
+    console.error('fetchRepoIndex', e);
+    show('Failed to fetch repo index: ' + (e.message || e));
+  }
+}
+
+async function removeRepo(idx){
+  const repo = localRepos[idx];
+  if(!repo) return;
+  if(!confirm('Remove repository?')) return;
+  try{
+    if(repo.id) await db.collection('repos').doc(repo.id).delete();
+  }catch(e){
+    console.warn('Failed delete from firestore', e);
+  }
+  localRepos.splice(idx,1);
+  renderRepos();
+  // remove items from index
+  index = index.filter(it => !(it._repo && it._repo.id === repo.id));
+  renderResults(index.slice(0,50));
+}
+
+/* ===============
+   Search
+   =============== */
+searchBtn.onclick = async () => {
+  const q = (globalSearch.value || '').trim().toLowerCase();
+  if(!q){ renderResults(index.slice(0,60)); return; }
+  const res = index.filter(it => (it.title && it.title.toLowerCase().includes(q)) ||
+                                   (it.description && it.description.toLowerCase().includes(q)));
+  renderResults(res.slice(0,200));
+};
+
+/* ===============
+   Playback & tracks
+   =============== */
+function clearTracks(){
+  audioSelect.innerHTML = '<option value="">Audio tracks</option>';
+  subtitleSelect.innerHTML = '<option value="">Subtitles</option>';
+  // remove existing <track> elements
+  const tracks = player.querySelectorAll('track');
+  tracks.forEach(t => t.remove());
+}
+
+function populateTracks(){
+  // audioTracks API (not supported in all browsers)
+  audioSelect.innerHTML = '<option value="">Audio tracks</option>';
+  if(player.audioTracks && player.audioTracks.length){
+    for(let i=0;i<player.audioTracks.length;i++){
+      const t = player.audioTracks[i];
+      const opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = t.label || ('Track ' + (i+1));
+      audioSelect.appendChild(opt);
+    }
+  }
+  // textTracks
+  subtitleSelect.innerHTML = '<option value="">Subtitles</option>';
+  const tks = player.textTracks;
+  for(let i=0;i<tks.length;i++){
+    const t = tks[i];
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = t.label || t.language || ('Subtitle '+(i+1));
+    subtitleSelect.appendChild(opt);
+  }
+  // wire events
+  audioSelect.onchange = () => {
+    if(player.audioTracks) for(let i=0;i<player.audioTracks.length;i++) player.audioTracks[i].enabled = (i==audioSelect.value);
+  };
+  subtitleSelect.onchange = () => {
+    for(let i=0;i<player.textTracks.length;i++) player.textTracks[i].mode = (i==subtitleSelect.value)?'showing':'disabled';
+  };
+}
+
+function playSource(title, sourceIndex, itemObj){
+  // itemObj may be stringified earlier; ensure it's parsed if needed
+  const item = (typeof itemObj === 'string') ? JSON.parse(itemObj) : itemObj;
+  if(!item || !item.sources || !item.sources[sourceIndex]) return show('Source not found');
+  const source = item.sources[sourceIndex];
+
+  // set current item
+  currentItem = { title: item.title, source };
+
+  // clear tracks then set src and add subtitle tracks if present
+  clearTracks();
+  player.src = source.url;
+  player.load();
+
+  // add subtitle <track> tags (if present)
+  if(Array.isArray(source.subtitles)){
+    source.subtitles.forEach((sub, i) => {
+      const t = document.createElement('track');
+      t.kind = 'subtitles';
+      t.label = sub.label || sub.lang || ('sub'+(i+1));
+      t.srclang = sub.lang || '';
+      t.src = sub.vtt;
+      t.mode = 'disabled';
+      player.appendChild(t);
+    });
+  }
+  // attempt to unmute + play (user interaction required by browser)
+  player.muted = false;
+  player.volume = 1;
+  player.play().catch(e => {
+    // If autoplay prevented, user will click play - that's fine.
+    console.log('play prevented', e);
+  });
+
+  // update history
+  history = history.filter(h=>h.url !== source.url);
+  history.push({title: item.title, url: source.url, date: new Date().toISOString()});
+  localStorage.setItem('cs_history', JSON.stringify(history));
+  renderSavedHistory(); // update sidebar saved/history display
+}
+
+/* Helper wrapper used when rendering tiles to pass JSON safely */
+window.playSource = function(title, sourceIndex, itemObj){
+  // itemObj may be object literal embedded as string in onclick; handle if stringified
+  let item = itemObj;
+  try{ if(typeof itemObj === 'string' && itemObj.trim().startsWith('{')) item = JSON.parse(itemObj); }catch(e){}
+  playSource(title, sourceIndex, item);
+};
+
+/* ===============
+   Save & Delete items
+   =============== */
+async function saveItem(title, item){
+  if(!item || !item.sources || !item.sources.length) return show('Nothing to save');
+  const first = item.sources[0];
+  try{
+    await db.collection('savedLinks').add({title:item.title,url:first.url,meta:item,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+    show('Saved to cloud');
+    await loadSavedLinksFromFirestore();
+  }catch(e){
+    console.error(e);
+    show('Failed saving: '+e.message);
+  }
+}
+
+async function loadSavedLinksFromFirestore(){
+  try{
+    const snap = await db.collection('savedLinks').get();
+    savedLinks = snap.docs.map(d => ({id:d.id, ...d.data()}));
+    renderSavedHistory();
+  }catch(e){ console.error(e); }
+}
+
+async function deleteSavedLink(id){
+  if(!confirm('Delete saved link?')) return;
+  try{ await db.collection('savedLinks').doc(id).delete(); await loadSavedLinksFromFirestore(); }catch(e){console.error(e);}
+}
+
+/* ===============
+   Saved / History sidebar
+   =============== */
+function renderSavedHistory(){
+  savedHistoryList.innerHTML = '';
+  // history (local)
+  if(history && history.length){
+    const hsection = document.createElement('div');
+    hsection.innerHTML = '<div style="font-weight:700;margin-bottom:6px">History</div>';
+    history.slice().reverse().forEach((h,i)=>{
+      const el = document.createElement('div');
+      el.className = 'small';
+      el.style.display='flex'; el.style.justifyContent='space-between'; el.style.marginBottom='6px';
+      el.innerHTML = `<div style="flex:1">${h.title || h.url}</div>
+                      <div style="display:flex;gap:6px">
+                        <button class="muted-btn" onclick="playSavedHistory('${encodeURIComponent(h.url)}')">▶</button>
+                        <button class="muted-btn" onclick="removeHistoryItem(${history.length-1-i})">🗑</button>
+                      </div>`;
+      hsection.appendChild(el);
+    });
+    savedHistoryList.appendChild(hsection);
+  }
+  // saved links (cloud)
+  if(savedLinks && savedLinks.length){
+    const ssection = document.createElement('div');
+    ssection.innerHTML = '<div style="font-weight:700;margin-top:10px;margin-bottom:6px">Saved</div>';
+    savedLinks.forEach(s=>{
+      const el = document.createElement('div');
+      el.style.display='flex'; el.style.justifyContent='space-between'; el.style.marginBottom='6px';
+      el.innerHTML = `<div style="flex:1">${s.title||s.url}</div>
+                      <div style="display:flex;gap:6px">
+                        <button class="muted-btn" onclick="playSavedCloud('${encodeURIComponent(s.url)}')">▶</button>
+                        <button class="muted-btn" onclick="deleteSavedLink('${s.id}')">🗑</button>
+                      </div>`;
+      ssection.appendChild(el);
+    });
+    savedHistoryList.appendChild(ssection);
+  }
+}
+
+window.playSavedHistory = function(encUrl){
+  const url = decodeURIComponent(encUrl);
+  player.src = url; player.play().catch(()=>{});
+};
+window.playSavedCloud = function(encUrl){
+  const url = decodeURIComponent(encUrl);
+  player.src = url; player.play().catch(()=>{});
+};
+window.removeHistoryItem = function(idx){
+  history.splice(idx,1);
+  localStorage.setItem('cs_history', JSON.stringify(history));
+  renderSavedHistory();
+};
+
+/* ===============
+   Sign-in tracker & startup
+   =============== */
+firebase.auth().onAuthStateChanged(user => {
+  if(user){
+    userStatus.textContent = 'Signed in (anon)';
+    signOutBtn.style.display = 'inline-block';
+    // load cloud data
+    loadSavedReposFromFirestore();
+    loadSavedLinksFromFirestore();
+  } else {
+    userStatus.textContent = 'Not signed in';
+    signOutBtn.style.display = 'none';
+  }
+});
+
+signOutBtn.onclick = () => {
+  firebase.auth().signOut();
+  location.reload();
+};
+
+/* ===============
+   Small sample repo (public domain video) to demonstrate functionality
+   =============== */
+const sampleRepo = [
+  {
+    "id": "bbb",
+    "title": "Big Buck Bunny (sample)",
+    "description": "Demo public-domain clip - Big Buck Bunny",
+    "poster": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/BigBuckBunny.jpg",
+    "sources": [
+      {
+        "label": "MP4 360p",
+        "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+        "subtitles": []
+      }
+    ]
+  }
+];
+
+addSampleBtn.onclick = async () => {
+  // Save the sample repo to Firestore so it appears in repo list
+  try{
+    const doc = await db.collection('repos').add({url:'__sample__', title:'Sample Repo (Big Buck Bunny)', createdAt: firebase.firestore.FieldValue.serverTimestamp()});
+    localRepos.push({id: doc.id, url:'__sample__', title:'Sample Repo (Big Buck Bunny)'});
+    // store sample items in a separate collection named by repo id (local indexing)
+    // For simplicity, we will just merge into index client-side
+    index = index.concat(sampleRepo.map(it => ({...it, _repo:{id:doc.id,url:'__sample__'}})));
+    renderRepos(); renderResults(index.slice(0,50));
+    show('Sample repo added (local index).');
+  }catch(e){
+    console.error(e); show('Failed adding sample repo: '+e.message);
+  }
+};
+
+/* ===============
+   Initialization: load repos/saved/history
+   =============== */
+(async function init(){
+  // load repos from Firestore (if any)
+  try{ await loadSavedReposFromFirestore(); }catch(e){console.warn(e)}
+  // load saved links
+  try{ await loadSavedLinksFromFirestore(); }catch(e){}
+  // render index initial (empty)
+  renderResults(index.slice(0,50));
+  renderSavedHistory();
+})();
+
+/* Expose small functions to global scope for onclick handlers */
+window.saveItem = function(title, item){
+  // item may be object; if not, ignore
+  try{
+    const obj = (typeof item === 'string' && item.trim().startsWith('{')) ? JSON.parse(item) : item;
+    saveItem(title, obj);
+  }catch(e){ console.error(e); }
+};
+</script>
 </body>
 </html>
