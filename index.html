@@ -1,267 +1,396 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Msoo Online Restaurant</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>
-  body{font-family:Arial,Helvetica,sans-serif;margin:0;background:#f5f5f5;color:#333;}
-  header{background:#fff;padding:15px 20px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 6px rgba(0,0,0,0.1);}
-  header h1{color:#e25822;margin:0;}
-  nav a{margin-left:20px;text-decoration:none;color:#333;font-weight:bold;}
-  nav a:hover{color:#e25822;}
-  .container{max-width:1200px;margin:auto;padding:20px;}
-  .menu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px;}
-  .item-card{background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,0.1);display:flex;flex-direction:column;}
-  .item-card img{width:100%;height:200px;object-fit:cover;}
-  .item-body{padding:15px;flex:1;display:flex;flex-direction:column;}
-  .item-body h3{margin:0 0 5px;}
-  .price{color:#e25822;font-weight:bold;margin-bottom:10px;}
-  button{background:#e25822;color:#fff;border:none;padding:10px;border-radius:5px;cursor:pointer;font-weight:bold;}
-  button:hover{background:#c94b1c;}
-  .cart-count{background:#e25822;color:#fff;border-radius:50%;padding:2px 7px;font-size:12px;margin-left:5px;}
-  .hidden{display:none;}
-  .modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);display:flex;justify-content:center;align-items:center;z-index:1000;}
-  .modal-content{background:#fff;padding:20px;border-radius:10px;width:90%;max-width:600px;max-height:90vh;overflow:auto;}
-  .close{float:right;font-size:20px;cursor:pointer;}
-  form label{display:block;margin-top:10px;font-weight:bold;}
-  form input,form textarea,form select{width:100%;padding:8px;margin-top:5px;}
-  #adminSection h2{margin-top:30px;}
-  .order{border-bottom:1px solid #ddd;padding:10px 0;}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TV Video Player</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            background-color: rgba(0, 0, 0, 0.8);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .tv-frame {
+            position: relative;
+            padding: 20px;
+            background: #222;
+            border-radius: 15px 15px 0 0;
+        }
+        
+        .tv-screen {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+            background-color: #000;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        #video-player {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+        }
+        
+        .tv-stand {
+            display: flex;
+            justify-content: center;
+        }
+        
+        .stand {
+            width: 100px;
+            height: 50px;
+            background: linear-gradient(to bottom, #444, #222);
+            border-radius: 0 0 10px 10px;
+        }
+        
+        .base {
+            width: 300px;
+            height: 20px;
+            background: linear-gradient(to bottom, #555, #333);
+            border-radius: 5px;
+            margin-top: -5px;
+        }
+        
+        .controls {
+            padding: 20px;
+            background: #333;
+            border-radius: 0 0 15px 15px;
+        }
+        
+        .url-input {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        
+        #video-url {
+            flex: 1;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 5px 0 0 5px;
+            font-size: 16px;
+            background: #222;
+            color: white;
+        }
+        
+        #load-btn {
+            padding: 12px 20px;
+            background: #e50914;
+            color: white;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        
+        #load-btn:hover {
+            background: #ff0a16;
+        }
+        
+        .player-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .control-btn {
+            background: #444;
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background 0.3s;
+        }
+        
+        .control-btn:hover {
+            background: #555;
+        }
+        
+        .control-btn i {
+            font-size: 18px;
+        }
+        
+        .progress-container {
+            flex: 1;
+            height: 10px;
+            background: #222;
+            border-radius: 5px;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        #progress-bar {
+            height: 100%;
+            background: #e50914;
+            border-radius: 5px;
+            width: 0%;
+        }
+        
+        .volume-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        #volume {
+            width: 80px;
+            cursor: pointer;
+        }
+        
+        .time-display {
+            color: white;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+        
+        .power-light {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            width: 15px;
+            height: 15px;
+            background: #e50914;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #e50914;
+        }
+        
+        .tv-brand {
+            position: absolute;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        
+        @media (max-width: 768px) {
+            .player-controls {
+                flex-wrap: wrap;
+            }
+            
+            .progress-container {
+                order: 1;
+                width: 100%;
+                margin-top: 10px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-<header>
-  <h1>Msoo Restaurant</h1>
-  <nav>
-    <a href="#" onclick="showCart()">Cart <span id="cartCount" class="cart-count">0</span></a>
-    <a href="#" onclick="openLogin()">Admin</a>
-  </nav>
-</header>
+    <div class="container">
+        <div class="tv-frame">
+            <div class="power-light"></div>
+            <div class="tv-screen">
+                <video id="video-player">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+            <div class="tv-brand">ULTRAVISION</div>
+        </div>
+        
+        <div class="tv-stand">
+            <div class="stand"></div>
+        </div>
+        <div class="tv-stand">
+            <div class="base"></div>
+        </div>
+        
+        <div class="controls">
+            <div class="url-input">
+                <input type="text" id="video-url" placeholder="Paste video URL here...">
+                <button id="load-btn">LOAD</button>
+            </div>
+            
+            <div class="player-controls">
+                <button class="control-btn" id="play-pause"><i class="fas fa-play"></i></button>
+                <button class="control-btn" id="stop"><i class="fas fa-stop"></i></button>
+                <button class="control-btn" id="rewind"><i class="fas fa-backward-step"></i></button>
+                <button class="control-btn" id="forward"><i class="fas fa-forward-step"></i></button>
+                
+                <div class="progress-container" id="progress-container">
+                    <div id="progress-bar"></div>
+                </div>
+                
+                <div class="time-display">
+                    <span id="current-time">0:00</span> / <span id="total-time">0:00</span>
+                </div>
+                
+                <div class="volume-container">
+                    <button class="control-btn" id="mute"><i class="fas fa-volume-up"></i></button>
+                    <input type="range" id="volume" min="0" max="1" step="0.1" value="1">
+                </div>
+                
+                <button class="control-btn" id="fullscreen"><i class="fas fa-expand"></i></button>
+            </div>
+        </div>
+    </div>
 
-<div class="container">
-  <h2>Menu</h2>
-  <div id="menuGrid" class="menu-grid"></div>
-</div>
-
-<!-- Cart Modal -->
-<div id="cartModal" class="modal hidden">
-  <div class="modal-content">
-    <span class="close" onclick="hideCart()">&times;</span>
-    <h2>Your Cart</h2>
-    <div id="cartItems"></div>
-    <p><strong>Total: Ksh <span id="cartTotal">0</span></strong></p>
-    <form id="checkoutForm">
-      <label>Phone Number</label>
-      <input type="text" id="checkoutPhone" required>
-      <label>Delivery Location</label>
-      <input type="text" id="checkoutLocation" required>
-      <button type="submit">Place Order</button>
-    </form>
-  </div>
-</div>
-
-<!-- Admin Login Modal -->
-<div id="loginModal" class="modal hidden">
-  <div class="modal-content">
-    <span class="close" onclick="closeLogin()">&times;</span>
-    <h2>Admin Login</h2>
-    <form id="loginForm">
-      <label>Email</label><input type="email" id="loginEmail" required>
-      <label>Password</label><input type="password" id="loginPassword" required>
-      <button type="submit">Login</button>
-    </form>
-  </div>
-</div>
-
-<!-- Admin Panel -->
-<div id="adminSection" class="container hidden">
-  <h2>Admin Dashboard</h2>
-  <h3>Add Menu Item</h3>
-  <form id="addItemForm">
-    <label>Name</label><input type="text" id="itemName" required>
-    <label>Price (Ksh)</label><input type="number" id="itemPrice" required>
-    <label>Category</label>
-    <select id="itemCategory">
-      <option value="meals">Meal</option>
-      <option value="drinks">Drink</option>
-    </select>
-    <label>Description</label><textarea id="itemDescription" required></textarea>
-    <label>Upload Photo (optional)</label><input type="file" id="itemPhoto" accept="image/*">
-    <button type="button" onclick="generateImage()">Generate Photo with AI</button>
-    <button type="submit">Add Item</button>
-  </form>
-
-  <h3>Orders</h3>
-  <div id="ordersList"></div>
-</div>
-
-<script>
-const menuGrid = document.getElementById('menuGrid');
-const cartModal = document.getElementById('cartModal');
-const loginModal = document.getElementById('loginModal');
-const adminSection = document.getElementById('adminSection');
-const cartCount = document.getElementById('cartCount');
-const cartItemsDiv = document.getElementById('cartItems');
-const cartTotal = document.getElementById('cartTotal');
-const ordersList = document.getElementById('ordersList');
-let cart = [];
-let adminToken = null;
-
-// Fetch menu from backend
-async function loadMenu(){
-  const r = await fetch('/api/items');
-  const j = await r.json();
-  menuGrid.innerHTML = '';
-  j.items.forEach(item=>{
-    const div = document.createElement('div');
-    div.className='item-card';
-    div.innerHTML = `
-      <img src="${item.image || 'https://via.placeholder.com/400x300'}" alt="">
-      <div class="item-body">
-        <h3>${item.name}</h3>
-        <div class="price">Ksh ${item.price}</div>
-        <p>${item.description||''}</p>
-        <button onclick='addToCart(${JSON.stringify(item)})'>Add to Cart</button>
-      </div>`;
-    menuGrid.appendChild(div);
-  });
-}
-
-function addToCart(item){
-  const existing = cart.find(i=>i.id===item.id);
-  if(existing) existing.quantity++;
-  else cart.push({...item, quantity:1});
-  updateCartCount();
-}
-
-function updateCartCount(){
-  cartCount.textContent = cart.reduce((s,i)=>s+i.quantity,0);
-}
-
-function showCart(){
-  cartModal.classList.remove('hidden');
-  renderCart();
-}
-
-function hideCart(){cartModal.classList.add('hidden');}
-
-function renderCart(){
-  cartItemsDiv.innerHTML='';
-  let total=0;
-  cart.forEach(i=>{
-    total += i.price * i.quantity;
-    cartItemsDiv.innerHTML += `<div>${i.name} x${i.quantity} - Ksh ${i.price*i.quantity}</div>`;
-  });
-  cartTotal.textContent = total;
-}
-
-document.getElementById('checkoutForm').onsubmit = async e=>{
-  e.preventDefault();
-  if(cart.length===0){alert('Cart is empty');return;}
-  const phone = document.getElementById('checkoutPhone').value;
-  const location = document.getElementById('checkoutLocation').value;
-  const body = {
-    items: cart.map(i=>({id:i.id,name:i.name,price:i.price,quantity:i.quantity})),
-    total: cart.reduce((s,i)=>s+i.price*i.quantity,0),
-    phone, location
-  };
-  const r = await fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-  const j = await r.json();
-  if(j.ok){
-    alert('Order placed!');
-    cart=[];updateCartCount();hideCart();
-    if(adminToken) loadOrders();
-  } else alert('Error placing order');
-};
-
-// ---------- Admin ----------
-function openLogin(){loginModal.classList.remove('hidden');}
-function closeLogin(){loginModal.classList.add('hidden');}
-
-document.getElementById('loginForm').onsubmit = async e=>{
-  e.preventDefault();
-  const email = document.getElementById('loginEmail').value;
-  const password = document.getElementById('loginPassword').value;
-  const r = await fetch('/api/admin/login',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({email,password})
-  });
-  const j = await r.json();
-  if(j.ok){
-    adminToken = j.token;
-    loginModal.classList.add('hidden');
-    adminSection.classList.remove('hidden');
-    loadOrders();
-  } else alert('Login failed');
-};
-
-async function loadOrders(){
-  const r = await fetch('/api/orders');
-  const j = await r.json();
-  ordersList.innerHTML='';
-  j.orders.forEach(o=>{
-    ordersList.innerHTML += `<div class='order'>
-      <strong>Order ${o.id}</strong> (${new Date(o.date).toLocaleString()})<br>
-      Phone: ${o.phone}<br>
-      Location: ${o.location}<br>
-      Total: Ksh ${o.total}<br>
-      Items: ${o.items.map(i=>i.name+' x'+i.quantity).join(', ')}
-    </div>`;
-  });
-}
-
-// Add item (upload or generated)
-document.getElementById('addItemForm').onsubmit = async e=>{
-  e.preventDefault();
-  const name = document.getElementById('itemName').value;
-  const price = document.getElementById('itemPrice').value;
-  const category = document.getElementById('itemCategory').value;
-  const desc = document.getElementById('itemDescription').value;
-  const photo = document.getElementById('itemPhoto').files[0];
-
-  let body, headers;
-  if(photo){
-    // multipart with photo
-    const fd = new FormData();
-    fd.append('name', name);
-    fd.append('price', price);
-    fd.append('category', category);
-    fd.append('description', desc);
-    fd.append('photo', photo);
-    body = fd; headers = {}; // fetch will set multipart
-  } else {
-    // JSON without photo (server may use generated image)
-    body = JSON.stringify({name,price,category,description:desc});
-    headers = {'Content-Type':'application/json'};
-  }
-
-  const r = await fetch('/api/items',{method:'POST',body,headers});
-  const j = await r.json();
-  if(j.ok){alert('Item added');loadMenu();}
-  else alert('Error adding item');
-};
-
-// Generate photo using AI and preview/save
-async function generateImage(){
-  const name = document.getElementById('itemName').value.trim();
-  if(!name){alert('Enter item name first');return;}
-  const prompt = `A delicious, high-resolution, appetizing photo of ${name}, Kenyan cuisine`;
-  const r = await fetch('/api/generate-image',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({prompt,size:'512x512',saveAsFile:true})
-  });
-  const j = await r.json();
-  if(j.ok){
-    alert('AI image generated and will be used automatically when you add item.');
-    // store returned file path temporarily in hidden field if you want
-  } else alert('Generation failed');
-}
-
-loadMenu();
-</script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get elements
+            const videoPlayer = document.getElementById('video-player');
+            const videoUrl = document.getElementById('video-url');
+            const loadBtn = document.getElementById('load-btn');
+            const playPauseBtn = document.getElementById('play-pause');
+            const stopBtn = document.getElementById('stop');
+            const rewindBtn = document.getElementById('rewind');
+            const forwardBtn = document.getElementById('forward');
+            const muteBtn = document.getElementById('mute');
+            const volumeSlider = document.getElementById('volume');
+            const fullscreenBtn = document.getElementById('fullscreen');
+            const progressContainer = document.getElementById('progress-container');
+            const progressBar = document.getElementById('progress-bar');
+            const currentTimeEl = document.getElementById('current-time');
+            const totalTimeEl = document.getElementById('total-time');
+            
+            // Load video from URL
+            loadBtn.addEventListener('click', function() {
+                if (videoUrl.value) {
+                    videoPlayer.src = videoUrl.value;
+                    videoPlayer.load();
+                    playPauseBtn.querySelector('i').classList.remove('fa-play');
+                    playPauseBtn.querySelector('i').classList.add('fa-pause');
+                }
+            });
+            
+            // Play/Pause
+            playPauseBtn.addEventListener('click', function() {
+                if (videoPlayer.paused || videoPlayer.ended) {
+                    videoPlayer.play();
+                    playPauseBtn.querySelector('i').classList.remove('fa-play');
+                    playPauseBtn.querySelector('i').classList.add('fa-pause');
+                } else {
+                    videoPlayer.pause();
+                    playPauseBtn.querySelector('i').classList.remove('fa-pause');
+                    playPauseBtn.querySelector('i').classList.add('fa-play');
+                }
+            });
+            
+            // Stop
+            stopBtn.addEventListener('click', function() {
+                videoPlayer.pause();
+                videoPlayer.currentTime = 0;
+                progressBar.style.width = '0%';
+                playPauseBtn.querySelector('i').classList.remove('fa-pause');
+                playPauseBtn.querySelector('i').classList.add('fa-play');
+            });
+            
+            // Rewind
+            rewindBtn.addEventListener('click', function() {
+                videoPlayer.currentTime -= 10;
+            });
+            
+            // Forward
+            forwardBtn.addEventListener('click', function() {
+                videoPlayer.currentTime += 10;
+            });
+            
+            // Mute
+            muteBtn.addEventListener('click', function() {
+                videoPlayer.muted = !videoPlayer.muted;
+                if (videoPlayer.muted) {
+                    muteBtn.querySelector('i').classList.remove('fa-volume-up');
+                    muteBtn.querySelector('i').classList.add('fa-volume-mute');
+                    volumeSlider.value = 0;
+                } else {
+                    muteBtn.querySelector('i').classList.remove('fa-volume-mute');
+                    muteBtn.querySelector('i').classList.add('fa-volume-up');
+                    volumeSlider.value = videoPlayer.volume;
+                }
+            });
+            
+            // Volume
+            volumeSlider.addEventListener('input', function() {
+                videoPlayer.volume = volumeSlider.value;
+                if (videoPlayer.volume == 0) {
+                    muteBtn.querySelector('i').classList.remove('fa-volume-up');
+                    muteBtn.querySelector('i').classList.add('fa-volume-mute');
+                    videoPlayer.muted = true;
+                } else {
+                    muteBtn.querySelector('i').classList.remove('fa-volume-mute');
+                    muteBtn.querySelector('i').classList.add('fa-volume-up');
+                    videoPlayer.muted = false;
+                }
+            });
+            
+            // Fullscreen
+            fullscreenBtn.addEventListener('click', function() {
+                if (videoPlayer.requestFullscreen) {
+                    videoPlayer.requestFullscreen();
+                } else if (videoPlayer.webkitRequestFullscreen) {
+                    videoPlayer.webkitRequestFullscreen();
+                } else if (videoPlayer.msRequestFullscreen) {
+                    videoPlayer.msRequestFullscreen();
+                }
+            });
+            
+            // Progress bar
+            videoPlayer.addEventListener('timeupdate', function() {
+                const currentTime = videoPlayer.currentTime;
+                const duration = videoPlayer.duration;
+                
+                if (duration) {
+                    const percent = (currentTime / duration) * 100;
+                    progressBar.style.width = percent + '%';
+                    
+                    // Update time displays
+                    currentTimeEl.textContent = formatTime(currentTime);
+                    totalTimeEl.textContent = formatTime(duration);
+                }
+            });
+            
+            // Click on progress bar to seek
+            progressContainer.addEventListener('click', function(e) {
+                const pos = (e.pageX - this.offsetLeft) / this.offsetWidth;
+                videoPlayer.currentTime = pos * videoPlayer.duration;
+            });
+            
+            // Format time in minutes:seconds
+            function formatTime(seconds) {
+                const min = Math.floor(seconds / 60);
+                const sec = Math.floor(seconds % 60);
+                return min + ':' + (sec < 10 ? '0' + sec : sec);
+            }
+            
+            // Update play/pause button when video ends
+            videoPlayer.addEventListener('ended', function() {
+                playPauseBtn.querySelector('i').classList.remove('fa-pause');
+                playPauseBtn.querySelector('i').classList.add('fa-play');
+                progressBar.style.width = '0%';
+            });
+        });
+    </script>
 </body>
 </html>
